@@ -49,13 +49,16 @@ export const createUser = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { user_id } = req.params;
         const updateFields = req.body;
 
-        const updatedUser = await User.findByIdAndUpdate(id, updateFields, {
+        const updatedUser = await User.findOneAndUpdate(
+            { user_id },
+            updateFields, {
             new: true, // trả về dữ liệu sau khi cập nhật
             runValidators: true, // áp dụng validate theo schema
-        });
+            }
+        );
 
         if (!updatedUser) {
             throw createUser(400, "Không tìm thấy người dùng");
@@ -71,18 +74,18 @@ export const updateUser = async (req, res, next) => {
 }
 
 export const deleteUser = async (req, res, next) => {
-  try {
-    const { id } = req.params;
+    try {
+        const { user_id } = req.params;
 
-    const deletedUser = await User.findByIdAndDelete(id);
-    if (!deletedUser) {
-        throw createError(400, "Không tìm thấy người dùng để xoá");
+        const deletedUser = await User.findOneAndDelete({ user_id });
+        if (!deletedUser) {
+            throw createError(400, "Không tìm thấy người dùng để xoá");
+        }
+
+        res.json({
+            message: "Xoá người dùng thành công",
+        })
+    } catch (err) {
+        res.status(500).json({ message: "Lỗi xoá người dùng", error: err.message });
     }
-
-    res.json({
-            message: "Xoá người d thành công",
-    })
-  } catch (err) {
-    res.status(500).json({ message: "Lỗi xoá người dùng", error: err.message });
-  }
 };

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProducts } from "../controllers/productController.js"; // import thiếu .js
+import { getProducts, createProduct, updateProduct, deleteProduct } from "../controllers/productController.js"; // import thiếu .js
 import { getBrand ,createBrand, updateBrand, deleteBrand } from "../controllers/brandController.js";
 import {  createCategory,getCategories,getCategoryById,updateCategory,deleteCategory } from "../controllers/categoryController.js";
 import { getRole, createRole, updateRole, deleteRole } from "../controllers/roleController.js";
@@ -9,7 +9,11 @@ const routes = Router();
 
 // routes.use("/products", hanldeProduct...)
 
+// route product
 routes.get("/products", getProducts);
+routes.post("/products/create", createProduct);
+routes.put("/products/edit/:product_id", updateProduct);
+routes.delete("/products/delete/:product_id", deleteProduct);
 
 
 // route brand
@@ -17,6 +21,7 @@ routes.get("/brands", getBrand);
 routes.post("/brands/create", createBrand);
 routes.put("/brands/edit/:brand_id", updateBrand);
 routes.delete("/brands/delete/:brand_id", deleteBrand);
+
 // route category
 routes.get("/categories", getCategories);         
 routes.get("/categories/:id", getCategoryById);      
@@ -33,8 +38,8 @@ routes.delete("/roles/delete/:role_id", deleteRole);
 // route user
 routes.get("/users", getUsers);
 routes.post("/users/create", createUser);
-routes.put("/users/edit/:id", updateUser);
-routes.delete("/users/delete/:id", deleteUser);
+routes.put("/users/edit/:user_id", updateUser);
+routes.delete("/users/delete/:user_id", deleteUser);
 
 
 export default routes;
