@@ -7,7 +7,7 @@ import cors from "cors";
 import { PORT } from "./src/configs/enviroments.js";
 import jsonValid from "./src/middlewares/jsonInvalid.js";
 import setupSwagger from "./src/configs/swaggerConfig.js";
-
+import authRoutes from "./src/routes/index.js";
 const app = express();
 app.use(express.json());
 
@@ -17,12 +17,12 @@ app.use(
 	cors({
 		origin: ["http://localhost:5173", "http://localhost:5174"],
 		credentials: true,
-		// Them cac cau hinh can thiet
+		
 	})
 );
 
 setupSwagger(app);
-
+app.use("/api/auth", authRoutes);
 app.use("/api", routes);
 
 // Middleware xử lý JSON không hợp lệ
