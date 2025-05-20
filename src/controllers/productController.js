@@ -86,3 +86,25 @@ export const deleteProduct = async (req, res, next) => {
 		next(err);
 	}
 };
+
+export const getProductDetail = async (req, res, next) => {
+	try {
+		const { product_id } = req.params;
+
+		// Tìm sản phẩm theo product_id
+		const product = await Product.findOne({ product_id })
+			.populate("brand_id")       // Nếu bạn muốn hiển thị chi tiết thương hiệu
+			.populate("category_id");   // Nếu bạn muốn hiển thị chi tiết danh mục
+
+		if (!product) {
+			throw createError(404, "Không tìm thấy sản phẩm");
+		}
+
+		res.json({
+			message: "Chi tiết sản phẩm",
+			product
+		});
+	} catch (err) {
+		next(err);
+	}
+};

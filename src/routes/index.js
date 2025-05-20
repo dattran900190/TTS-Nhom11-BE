@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProducts, createProduct, updateProduct, deleteProduct } from "../controllers/productController.js"; // import thiếu .js
+import { getProducts, createProduct, updateProduct, deleteProduct, getProductDetail } from "../controllers/productController.js"; // import thiếu .js
 import { getBrand ,createBrand, updateBrand, deleteBrand } from "../controllers/brandController.js";
 import {  createCategory,getCategories,getCategoryById,updateCategory,deleteCategory } from "../controllers/categoryController.js";
 import { getRole, createRole, updateRole, deleteRole } from "../controllers/roleController.js";
@@ -14,7 +14,7 @@ routes.get("/products", getProducts);
 routes.post("/products/create", createProduct);
 routes.put("/products/edit/:product_id", updateProduct);
 routes.delete("/products/delete/:product_id", deleteProduct);
-
+routes.get("/products/show/:product_id", getProductDetail);
 
 // route brand
 routes.get("/brands", getBrand);
