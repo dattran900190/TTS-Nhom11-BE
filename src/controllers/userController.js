@@ -1,7 +1,8 @@
 import User from "../models/User.js";
+import createError from "../utils/createError.js";
 
 
-export const getUsers = async (req, res) => {
+export const getUsers = async (req, res, next) => {
     try {
         const Users = await User.find();
         res.json({
@@ -9,18 +10,18 @@ export const getUsers = async (req, res) => {
             Users
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 };
 
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, next) => {
     try {
         const { user_id, name, email, password, phone, address, role_id } = req.body; // lấy dữ liệu 
 
         // Kiểm tra email đã tồn tại chưa
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: "Email đã tồn tại" });
+            throw createUser(400, "Email đã tồn tại");
         }
 
         const newUser = new User({
@@ -41,12 +42,12 @@ export const createUser = async (req, res) => {
             user: savedUser
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 
 };
 
-export const updateUser = async (req, res) => {
+export const updateUser = async (req, res, next) => {
     try {
         const { id } = req.params;
         const updateFields = req.body;
@@ -57,7 +58,7 @@ export const updateUser = async (req, res) => {
         });
 
         if (!updatedUser) {
-            return res.status(404).json({ message: "Không tìm thấy người dùng" });
+            throw createUser(400, "Không tìm thấy người dùng");
         }
 
         res.json({
@@ -65,17 +66,17 @@ export const updateUser = async (req, res) => {
             user: updatedUser
         })
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 }
 
-export const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const deletedUser = await User.findByIdAndDelete(id);
     if (!deletedUser) {
-      return res.status(404).json({ message: "Không tìm thấy người dùng để xoá" });
+        throw createError(400, "Không tìm thấy người dùng để xoá");
     }
 
     res.json({

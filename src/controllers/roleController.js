@@ -1,7 +1,8 @@
 import Role from "../models/Role.js";
+import createError from "../utils/createError.js";
 
 
-export const getRole = async (req, res) => {
+export const getRole = async (req, res, next) => {
   try {
     const roles = await Role.find();
     res.json({
@@ -9,17 +10,17 @@ export const getRole = async (req, res) => {
         roles
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-export const createRole = async (req, res) => {
+export const createRole = async (req, res, next) => {
   try {
     const { role_id, name, description } = req.body; // lấy dữ liệu 
 
     const existing = await Role.findOne({ role_id }); // check id nếu tồn tại thì trả về lỗi 400
     if (existing) {
-      return res.status(400).json({ message: "role ID đã tồn tại." });
+      throw createError(400, "Role ID đã tồn tại.")
     }
 
     const newRole = new Role({ role_id, name, description }); // tạo object mới theo schema
@@ -31,11 +32,11 @@ export const createRole = async (req, res) => {
         Role: savedRole
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
-export const updateRole = async (req, res) => {
+export const updateRole = async (req, res, next) => {
     try {
         const { role_id } = req.params;
         const { name, description } = req.body;
@@ -47,9 +48,7 @@ export const updateRole = async (req, res) => {
         );
 
         if (!updated) {
-            return res.status(404).json({
-                message: "Không tìm thấy vai trò để cập nhật."
-            });
+            throw createError(400, "Không tìm thấy vai trò để cập nhật.");
         }
 
         res.json({
@@ -57,27 +56,25 @@ export const updateRole = async (req, res) => {
             role: updated
         })
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 }
 
-export const deleteRole = async (req, res) => {
+export const deleteRole = async (req, res, next) => {
     try {
         const { role_id } = req.params;
 
         const deteled = await Role.findOneAndDelete({ role_id });
 
         if (!deteled) {
-            return res.status(404).json({
-                message: "Không tìm thấy vai trò để xoá."
-            });
+            throw createError(400, "Không tìm thấy vai trò để xoá.");
         }
 
         res.json({
             message: "Xoá vai trò thành công",
         })
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 }
 

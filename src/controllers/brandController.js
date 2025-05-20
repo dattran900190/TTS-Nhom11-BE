@@ -1,41 +1,42 @@
 import Brand from "../models/Brand.js";
+import createError from "../utils/createError.js";
 
 
-export const getBrand = async (req, res) => {
-  try {
-    const brands = await Brand.find();
-    res.json({
-        message: "Danh sách thương hiệu",
-        brands
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-export const createBrand = async (req, res) => {
-  try {
-    const { brand_id, name, origin, description } = req.body; // lấy dữ liệu 
-
-    const existing = await Brand.findOne({ brand_id }); // check id nếu tồn tại thì trả về lỗi 400
-    if (existing) {
-      return res.status(400).json({ message: "Brand ID đã tồn tại." });
+export const getBrand = async (req, res, next) => {
+    try {
+        const brands = await Brand.find();
+        res.json({
+            message: "Danh sách thương hiệu",
+            brands
+        });
+    } catch (err) {
+        next(err);
     }
-
-    const newBrand = new Brand({ brand_id, name, origin, description }); // tạo object mới theo schema
-    const savedBrand = await newBrand.save(); // .save() để ghi vào mongodb
-
-    // trả dữ liệu vừa tạo
-    res.status(201).json({
-        message: "Thêm thương hiệu thành công",
-        Brand: savedBrand
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
 };
 
-export const updateBrand = async (req, res) => {
+export const createBrand = async (req, res, next) => {
+    try {
+        const { brand_id, name, origin, description } = req.body; // lấy dữ liệu 
+
+        const existing = await Brand.findOne({ brand_id }); // check id nếu tồn tại thì trả về lỗi 400
+        if (existing) {
+            throw createError(400, "Brand ID đã tồn tại.");
+        }
+
+        const newBrand = new Brand({ brand_id, name, origin, description }); // tạo object mới theo schema
+        const savedBrand = await newBrand.save(); // .save() để ghi vào mongodb
+
+        // trả dữ liệu vừa tạo
+        res.status(201).json({
+            message: "Thêm thương hiệu thành công",
+            Brand: savedBrand
+        });
+    } catch (err) {
+        next(err);  // đẩy vào errorHandler chung
+    }
+};
+
+export const updateBrand = async (req, res, next) => {
     try {
         const { brand_id } = req.params;
         const { name, origin, description } = req.body;
@@ -47,9 +48,7 @@ export const updateBrand = async (req, res) => {
         );
 
         if (!updated) {
-            return res.status(404).json({
-                message: "Không tìm thấy thương hiệu để cập nhật."
-            });
+            throw createError(400, "Không tìm thấy thương hiệu để cập nhật.");
         }
 
         res.json({
@@ -57,26 +56,24 @@ export const updateBrand = async (req, res) => {
             brand: updated
         })
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 }
 
-export const deleteBrand = async (req, res) => {
+export const deleteBrand = async (req, res, next) => {
     try {
         const { brand_id } = req.params;
 
         const deteled = await Brand.findOneAndDelete({ brand_id });
 
         if (!deteled) {
-            return res.status(404).json({
-                message: "Không tìm thấy thương hiệu để xoá."
-            });
+            throw createError(400, "Không tìm thấy thương hiệu để xoá.");
         }
 
         res.json({
             message: "Xoá thương hiệu thành công",
         })
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        next(err);
     }
 }
