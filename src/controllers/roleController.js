@@ -1,80 +1,92 @@
 import Role from "../models/Role.js";
 import createError from "../utils/createError.js";
 
-
+// Lấy danh sách vai trò
 export const getRole = async (req, res, next) => {
   try {
-    const roles = await Role.find();
+     // Lấy query params Lấy các tham số trên URL, ví dụ: ?search=admin&page=1&limit=10
+    const { search = "", page = 1, limit = 10 } = req.query;
+
+    const query = {
+      name: { $regex: search, $options: "i" } // tìm kiếm không phân biệt hoa thường
+    };
+
+    const skip = (page - 1) * limit;
+
+     const [roles, total] = await Promise.all([
+      Role.find(query).skip(skip).limit(Number(limit)),
+      Role.countDocuments(query)
+    ]);
+
     res.json({
-        message: "Danh sách vai trò",
-        roles
+      message: "Danh sách vai trò",
+      currentPage: Number(page),
+      totalPages: Math.ceil(total / limit),
+      totalRoles: total,
+      roles
     });
   } catch (err) {
     next(err);
   }
 };
 
+// Tạo vai trò mới
 export const createRole = async (req, res, next) => {
   try {
-    const { role_id, name, description } = req.body; // lấy dữ liệu 
+    const { name, description } = req.body;
 
-    const existing = await Role.findOne({ role_id }); // check id nếu tồn tại thì trả về lỗi 400
-    if (existing) {
-      throw createError(400, "Role ID đã tồn tại.")
-    }
+    const newRole = new Role({ name, description });
+    const savedRole = await newRole.save();
 
-    const newRole = new Role({ role_id, name, description }); // tạo object mới theo schema
-    const savedRole = await newRole.save(); // .save() để ghi vào mongodb
-
-    // trả dữ liệu vừa tạo
     res.status(201).json({
-        message: "Thêm vai trò thành công",
-        Role: savedRole
+      message: "Thêm vai trò thành công",
+      role: savedRole
     });
   } catch (err) {
     next(err);
   }
 };
 
+// Cập nhật vai trò theo _id
 export const updateRole = async (req, res, next) => {
-    try {
-        const { role_id } = req.params;
-        const { name, description } = req.body;
+  try {
+    const { id } = req.params; // sử dụng _id thay vì role_id
+    const { name, description } = req.body;
 
-        const updated = await Role.findOneAndUpdate(
-            { role_id },
-            { name, description },
-            { new: true } // trả về bản mới sau khi cập nhật
-        );
+    const updated = await Role.findByIdAndUpdate(
+      id,
+      { name, description },
+      { new: true }
+    );
 
-        if (!updated) {
-            throw createError(400, "Không tìm thấy vai trò để cập nhật.");
-        }
-
-        res.json({
-            message: "Cập nhật vai trò thành công",
-            role: updated
-        })
-    } catch (err) {
-        next(err);
+    if (!updated) {
+      throw createError(404, "Không tìm thấy vai trò để cập nhật.");
     }
-}
 
+    res.json({
+      message: "Cập nhật vai trò thành công",
+      role: updated
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Xoá vai trò theo _id
 export const deleteRole = async (req, res, next) => {
-    try {
-        const { role_id } = req.params;
+  try {
+    const { id } = req.params;
 
-        const deteled = await Role.findOneAndDelete({ role_id });
+    const deleted = await Role.findByIdAndDelete(id);
 
-        if (!deteled) {
-            throw createError(400, "Không tìm thấy vai trò để xoá.");
-        }
-
-        res.json({
-            message: "Xoá vai trò thành công",
-        })
-    } catch (err) {
-        next(err);
+    if (!deleted) {
+      throw createError(404, "Không tìm thấy vai trò để xoá.");
     }
-}
 
+    res.json({
+      message: "Xoá vai trò thành công"
+    });
+  } catch (err) {
+    next(err);
+  }
+};

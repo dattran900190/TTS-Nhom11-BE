@@ -3,71 +3,70 @@ import Product from "../models/Product.js";
 import createError from "../utils/createError.js";
 
 export const getProducts = async (req, res, next) => {
-  try {
-    const products = await Product.find();        // lấy tất cả
-    res.status(201).json({
-      mesage: "Danh sách sản phẩm",
-      products: products
-    })
-  } catch (err) {
-    next(err);                                    // đẩy vào errorHandler chung
-  }
+	try {
+		const products = await Product.find()
+			.populate("brand_id", "name") // lấy tên thương hiệu
+			.populate("category_id", "name"); // lấy tên danh mục;        // lấy tất cả
+
+		res.status(201).json({
+			mesage: "Danh sách sản phẩm",
+			products: products
+		})
+	} catch (err) {
+		next(err);                                    // đẩy vào errorHandler chung
+	}
 };
 
 export const createProduct = async (req, res, next) => {
   try {
-    const { product_id, name, description, price, brand_id, category_id, image_url, stock_quantity } = req.body;
-    
-    const existingProduct = await Product.findOne({ product_id })
-    if (existingProduct) {
-      throw createError(400, "Product ID đã tồn tại.");
-    }
+    const { name, description, brand_id, category_id, image_url, variants } = req.body;
 
     const newProduct = new Product({
-      product_id,
-			name,
-			description,
-			price,
-			brand_id,
-			category_id,
-			image_url,
-			stock_quantity,
+      name,
+      description,
+      brand_id,
+      category_id,
+      image_url,
+      variants,
     });
 
     const savedProduct = await newProduct.save();
 
     res.status(201).json({
-      mesage: "Thêm sản phẩm thành công",
+      message: "Thêm sản phẩm thành công",
       product: savedProduct
-    })
+    });
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
 
 export const updateProduct = async (req, res, next) => {
-	try {
-		const { product_id } = req.params;
-		const updateData = req.body;
+  try {
+    const { product_id } = req.params;
+    const updateData = req.body;
 
-		const updated = await Product.findOneAndUpdate(
-			{ product_id },
-			updateData,
-			{ new: true }
-		);
+    // Tìm sản phẩm theo product_id và cập nhật
+    const updated = await Product.findOneAndUpdate(
+      { product_id },
+      updateData,
+      { new: true, runValidators: true } // new: trả về doc đã update, runValidators: kiểm tra schema
+    );
 
-		if (!updated) {
-			throw createError(404, "Không tìm thấy sản phẩm để cập nhật.");
-		}
+    if (!updated) {
+      throw createError(404, "Không tìm thấy sản phẩm để cập nhật.");
+    }
 
-		res.json({
-			message: "Cập nhật sản phẩm thành công",
-			product: updated,
-		});
-	} catch (err) {
-		next(err);
-	}
+    res.json({
+      message: "Cập nhật sản phẩm thành công",
+      product: updated,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
+
+
 
 export const deleteProduct = async (req, res, next) => {
 	try {
@@ -89,12 +88,13 @@ export const deleteProduct = async (req, res, next) => {
 
 export const getProductDetail = async (req, res, next) => {
 	try {
-		const { product_id } = req.params;
+		const { id } = req.params;
 
-		// Tìm sản phẩm theo product_id
-		const product = await Product.findOne({ product_id })
+		// Tìm sản phẩm theo id
+		const product = await Product.findOne({ id })
 			.populate("brand_id")       // Nếu bạn muốn hiển thị chi tiết thương hiệu
-			.populate("category_id");   // Nếu bạn muốn hiển thị chi tiết danh mục
+			.populate("category_id")   // Nếu bạn muốn hiển thị chi tiết danh mục
+			.populate("variant_id");   // Nếu bạn muốn hiển thị chi tiết danh mục
 
 		if (!product) {
 			throw createError(404, "Không tìm thấy sản phẩm");
@@ -107,4 +107,27 @@ export const getProductDetail = async (req, res, next) => {
 	} catch (err) {
 		next(err);
 	}
+};
+
+// POST /products/:id/add-variant
+export const addVariantToProduct = async (req, res, next) => {
+  try {
+    const { product_id } = req.params;
+    const { volume, price, stock_quantity } = req.body;
+
+    const product = await Product.findOne({ product_id });
+    if (!product) {
+      throw createError(404, "Không tìm thấy sản phẩm");
+    }
+
+    product.variants.push({ volume, price, stock_quantity });
+    await product.save();
+
+    res.json({
+      message: "Thêm biến thể thành công",
+      product,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
