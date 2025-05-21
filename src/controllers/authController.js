@@ -1,11 +1,22 @@
 import mongoose from "mongoose";
 import User from "../models/User.js";
-import Role from "../models/Role.js";  
+import Role from "../models/Role.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { v4 as uuidv4 } from "uuid";
+import { sendWelcomeEmail } from "../utils/sendWelcomeEmail.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "your_refresh_secret";
+
+const generateTokens = (user) => {
+  const payload = {
+    _id: user._id,
+    role_id: user.role_id,
+  };
+  const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "15m" });
+  const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: "7d" });
+  return { accessToken, refreshToken };
+};
 
 export const register = async (req, res, next) => {
   try {
@@ -22,15 +33,14 @@ export const register = async (req, res, next) => {
     if (!assignedRoleId) {
       const userRole = await Role.findOne({ name: "User" });
       if (!userRole) {
-        return res.status(500).json({ success: false, message: "Role user chưa được thiết lập trong hệ thống" });
+        return res.status(500).json({ success: false, message: "Role user chưa được thiết lập" });
       }
-      assignedRoleId = userRole._id; 
+      assignedRoleId = userRole._id;
     } else {
-      assignedRoleId = mongoose.Types.ObjectId(assignedRoleId); 
+      assignedRoleId = mongoose.Types.ObjectId(assignedRoleId);
     }
 
     const newUser = new User({
-      user_id: uuidv4(),
       name,
       email,
       password: hashedPassword,
@@ -43,11 +53,17 @@ export const register = async (req, res, next) => {
 
     await newUser.save();
 
+    const { accessToken, refreshToken } = generateTokens(newUser);
+
+    await sendWelcomeEmail(email, name);
+
     res.status(201).json({
       success: true,
       message: "Đăng ký thành công",
+      accessToken,
+      refreshToken,
       user: {
-        user_id: newUser.user_id,
+        _id: newUser._id,
         name: newUser.name,
         email: newUser.email,
         phone: newUser.phone,
@@ -74,18 +90,15 @@ export const login = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Mật khẩu không đúng" });
     }
 
-    const token = jwt.sign(
-      { user_id: user.user_id, role_id: user.role_id },
-      JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+    const { accessToken, refreshToken } = generateTokens(user);
 
     res.json({
       success: true,
       message: "Đăng nhập thành công",
-      token,
+      accessToken,
+      refreshToken,
       user: {
-        user_id: user.user_id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         phone: user.phone,
