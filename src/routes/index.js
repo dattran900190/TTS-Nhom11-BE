@@ -1,21 +1,18 @@
 import { Router } from "express";
+import validateRequest from "../middlewares/validateRequest.js"; // express-validator
+
 import { getProducts, createProduct, updateProduct, deleteProduct, getProductDetail, addVariantToProduct } from "../controllers/productController.js"; // import thiếu .js
 import { getBrand, createBrand, updateBrand, deleteBrand } from "../controllers/brandController.js";
 import { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory } from "../controllers/categoryController.js";
-import {
-    validateCreateRole,
-    validateUpdateRole,
-    validateDeleteRole,
-    validateGetRole,
-} from "../validations/RoleValidate.js";
-import validateRequest from "../middlewares/validateRequest.js";
-import {
-    getRole,
-    createRole,
-    updateRole,
-    deleteRole,
-} from "../controllers/roleController.js";
+
+// import role
+import { validateCreateRole, validateUpdateRole, validateDeleteRole, validateGetRole } from "../validations/RoleValidate.js";
+import { getRole, createRole, updateRole, deleteRole } from "../controllers/roleController.js";
+
+//import user
+import { validateCreateUser, validateUpdateUser, validateDeleteUser, validateGetUser } from "../validations/UserValidate.js";
 import { getUsers, createUser, updateUser, deleteUser } from "../controllers/userController.js";
+
 import { getVariants, createVariant, updateVariant, deleteVariant } from "../controllers/productVariantController.js";
 
 import { register, login } from "../controllers/authController.js";
@@ -51,10 +48,10 @@ routes.put("/roles/edit/:id", validateUpdateRole, validateRequest, updateRole);
 routes.delete("/roles/delete/:id", validateDeleteRole, validateRequest, deleteRole);
 
 // route user
-routes.get("/users", getUsers);
-routes.post("/users/create", createUser);
-routes.put("/users/edit/:user_id", updateUser);
-routes.delete("/users/delete/:user_id", deleteUser);
+routes.get("/users", validateGetUser, validateRequest, getUsers);
+routes.post("/users/create", validateCreateUser, validateRequest, createUser);
+routes.put("/users/edit/:id", validateUpdateUser, validateRequest, updateUser);
+routes.delete("/users/delete/:id", validateDeleteUser, validateRequest, deleteUser);
 
 // route variant
 routes.get("/variants", getVariants);
