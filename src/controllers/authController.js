@@ -4,7 +4,8 @@ import Role from "../models/Role.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendWelcomeEmail } from "../utils/sendWelcomeEmail.js";
-
+import PasswordReset from "../models/PasswordReset.js";
+import { sendOtpEmail } from "../utils/sendMail.js";
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "your_refresh_secret";
 
@@ -106,6 +107,55 @@ export const login = async (req, res, next) => {
         role_id: user.role_id,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+export const sendOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email là bắt buộc" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "Email không tồn tại" });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 phút
+
+    await PasswordReset.findOneAndUpdate(
+      { email },
+      { otp, expiresAt },
+      { upsert: true, new: true }
+    );
+
+    await sendOtpEmail(email, otp);
+
+    res.json({ message: "Đã gửi mã OTP về email của bạn" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: "Vui lòng nhập đầy đủ thông tin" });
+    }
+
+    const record = await PasswordReset.findOne({ email, otp });
+    if (!record) return res.status(400).json({ message: "OTP không đúng" });
+
+    if (record.expiresAt < new Date()) {
+      return res.status(400).json({ message: "OTP đã hết hạn" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.findOneAndUpdate({ email }, { password: hashedPassword });
+
+    await PasswordReset.deleteOne({ _id: record._id });
+
+    res.json({ message: "Đổi mật khẩu thành công" });
   } catch (error) {
     next(error);
   }

@@ -14,7 +14,7 @@ import { getUsers, createUser, updateUser, deleteUser } from "../controllers/use
 
 import { getVariants, createVariant, updateVariant, deleteVariant } from "../controllers/productVariantController.js";
 
-import { register, login } from "../controllers/authController.js";
+import { register, login,sendOtp, resetPassword } from "../controllers/authController.js";
 import { registerValidator, loginValidator } from "../validations/AuthValidate.js";
 import { validBodyRequest } from "../middlewares/validBodyRequest.js";
 const routes = Router();
@@ -66,5 +66,8 @@ routes.delete("/variants/delete/:variant_id", deleteVariant);
 routes.post("/register", registerValidator, validBodyRequest, register);
 // Route đăng nhập
 routes.post("/login",loginValidator, validBodyRequest, login);
+// Route đổi mật khẩu
+routes.post("/send-otp", sendOtp);
+routes.post("/reset-password", resetPassword);
 export default routes;
 
