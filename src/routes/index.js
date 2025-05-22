@@ -1,10 +1,9 @@
 import { Router } from "express";
 import validateRequest from "../middlewares/validateRequest.js"; // express-validator
-
 import { getProducts, createProduct, updateProduct, deleteProduct, getProductDetail, addVariantToProduct } from "../controllers/productController.js"; // import thiếu .js
 import { getBrand, createBrand, updateBrand, deleteBrand } from "../controllers/brandController.js";
-import { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory } from "../controllers/categoryController.js";
-
+import { createCategory,getCategories,getCategoryById,updateCategory,softDeleteCategory,restoreCategory,hardDeleteCategory, } from "../controllers/categoryController.js";
+import {validateCreateCategory,validateUpdateCategory,validateDeleteCategory,validateRestoreCategory,validateHardDeleteCategory,validateGetCategoryById,} from "../validations/CategoryValidate.js";
 // import role
 import { validateCreateRole, validateUpdateRole, validateDeleteRole, validateGetRole } from "../validations/RoleValidate.js";
 import { getRole, createRole, updateRole, deleteRole } from "../controllers/roleController.js";
@@ -37,11 +36,13 @@ routes.put("/brands/edit/:brand_id", updateBrand);
 routes.delete("/brands/delete/:brand_id", deleteBrand);
 
 // route category
-routes.get("/categories", getCategories);
-routes.get("/categories/:id", getCategoryById);
-routes.post("/categories", createCategory);
-routes.put("/categories/:id", updateCategory);
-routes.delete("/categories/:id", deleteCategory);
+routes.get("/categories",getCategories);
+routes.get("/categories/:id",validateGetCategoryById,validateRequest,getCategoryById);
+routes.post("/categories",validateCreateCategory,validateRequest,createCategory);
+routes.put("/categories/:id",validateUpdateCategory,validateRequest,updateCategory);
+routes.delete("/categories/:id",validateDeleteCategory,validateRequest,softDeleteCategory);
+routes.patch("/categories/restore/:id",validateRestoreCategory,validateRequest,restoreCategory);
+routes.delete("/categories/hard-delete/:id",validateHardDeleteCategory,validateRequest,hardDeleteCategory);
 
 // route role
 routes.get("/roles", validateGetRole, validateRequest, getRole);
