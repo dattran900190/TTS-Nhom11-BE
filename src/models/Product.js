@@ -35,6 +35,15 @@ const productSchema = new mongoose.Schema({
   },
   image_url: String,
   variants: [variantSchema], // nhiều biến thể
+
+  price: {
+    type: Number,
+    default: 0,
+  },
+  total_stock: {
+    type: Number,
+    default: 0,
+  }
 }, {
   timestamps: true,
 });

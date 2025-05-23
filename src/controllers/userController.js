@@ -4,7 +4,7 @@ import createError from "../utils/createError.js";
 
 export const getUsers = async (req, res, next) => {
   try {
-    const { search = "", page = 1, limit = 10 } = req.query;
+    const { search = "", page = 1, limit = 5 } = req.query;
 
     const query = {
       name: { $regex: search, $options: "i" },
@@ -22,16 +22,15 @@ export const getUsers = async (req, res, next) => {
     ]);
 
     res.json({
-      message: "Danh sách người dùng",
-      currentPage: Number(page),
-      totalPages: Math.ceil(total / limit),
-      totalUsers: total,
-      users,
+      page: Number(page),
+      total,
+      data: users,
     });
   } catch (err) {
     next(err);
   }
 };
+
 
 
 export const createUser = async (req, res, next) => {
@@ -68,7 +67,7 @@ export const createUser = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
     try {
-        const { user_id } = req.params;
+        const { id } = req.params;
         const updateFields = req.body;
 
         // Không cho phép cập nhật email
@@ -81,8 +80,8 @@ export const updateUser = async (req, res, next) => {
             throw createError(400, "Không được phép thay đổi email");
         }
 
-        const updatedUser = await User.findOneAndUpdate(
-            { user_id },
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
             updateFields, {
             new: true, // trả về dữ liệu sau khi cập nhật
             runValidators: true, // áp dụng validate theo schema
@@ -106,7 +105,7 @@ export const deleteUser = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        const deletedUser = await User.findOneAndDelete({ id });
+        const deletedUser = await User.findByIdAndDelete(id);
         if (!deletedUser) {
             throw createError(400, "Không tìm thấy người dùng để xoá");
         }

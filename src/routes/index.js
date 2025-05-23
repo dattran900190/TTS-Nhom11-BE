@@ -1,8 +1,14 @@
 import { Router } from "express";
 import validateRequest from "../middlewares/validateRequest.js"; // express-validator
 
+// import product
+import { validateGetProduct, validateCreateProduct, validateDeleteProduct, validateUpdateProduct } from "../validations/ProductValidate.js";
 import { getProducts, createProduct, updateProduct, deleteProduct, getProductDetail, addVariantToProduct } from "../controllers/productController.js"; // import thiếu .js
+
+// import brand
+import { validateGetBrand, validateCreateBrand, validateUpdateBrand, validateDeleteBrand } from "../validations/BrandValidate.js";
 import { getBrand, createBrand, updateBrand, deleteBrand } from "../controllers/brandController.js";
+
 import { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory } from "../controllers/categoryController.js";
 
 // import role
@@ -14,25 +20,24 @@ import { validateCreateUser, validateUpdateUser, validateDeleteUser, validateGet
 import { getUsers, createUser, updateUser, deleteUser } from "../controllers/userController.js";
 
 import { getVariants, createVariant, updateVariant, deleteVariant } from "../controllers/productVariantController.js";
-
 import { register, login } from "../controllers/authController.js";
 const routes = Router();
 
 // routes.use("/products", hanldeProduct...)
 
 // route product
-routes.get("/products", getProducts);
-routes.post("/products/create", createProduct);
-routes.put("/products/edit/:id", updateProduct);
-routes.delete("/products/delete/:id", deleteProduct);
+routes.get("/products", validateGetProduct, validateRequest, getProducts);
+routes.post("/products/create", validateCreateProduct, validateRequest, createProduct);
+routes.put("/products/edit/:id", validateUpdateProduct, validateRequest, updateProduct);
+routes.delete("/products/delete/:id", validateDeleteProduct, validateRequest, deleteProduct);
 routes.get("/products/show/:id", getProductDetail);
 routes.post("/products/addVariant/:id", addVariantToProduct);
 
 // route brand
-routes.get("/brands", getBrand);
-routes.post("/brands/create", createBrand);
-routes.put("/brands/edit/:brand_id", updateBrand);
-routes.delete("/brands/delete/:brand_id", deleteBrand);
+routes.get("/brands", validateGetBrand, validateRequest, getBrand);
+routes.post("/brands/create", validateCreateBrand, validateRequest, createBrand);
+routes.put("/brands/edit/:brand_id", validateUpdateBrand, validateRequest, updateBrand);
+routes.delete("/brands/delete/:brand_id", validateDeleteBrand, validateRequest, deleteBrand);
 
 // route category
 routes.get("/categories", getCategories);

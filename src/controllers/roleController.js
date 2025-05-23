@@ -5,7 +5,7 @@ import createError from "../utils/createError.js";
 export const getRole = async (req, res, next) => {
   try {
      // Lấy query params Lấy các tham số trên URL, ví dụ: ?search=admin&page=1&limit=10
-    const { search = "", page = 1, limit = 10 } = req.query;
+    const { search = "", page = 1, limit = 5 } = req.query;
 
     const query = {
       name: { $regex: search, $options: "i" } // tìm kiếm không phân biệt hoa thường
@@ -18,13 +18,14 @@ export const getRole = async (req, res, next) => {
       Role.countDocuments(query)
     ]);
 
-    res.json({
-      message: "Danh sách vai trò",
-      currentPage: Number(page),
-      totalPages: Math.ceil(total / limit),
-      totalRoles: total,
-      roles
-    });
+    
+        res.json({
+          page: Number(page),
+          total,
+          data: roles,
+        });
+
+    
   } catch (err) {
     next(err);
   }

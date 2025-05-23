@@ -4,14 +4,31 @@ import createError from "../utils/createError.js";
 
 export const getBrand = async (req, res, next) => {
     try {
-        const brands = await Brand.find();
-        res.json({
-            message: "Danh sách thương hiệu",
-            brands
-        });
-    } catch (err) {
+         // Lấy query params Lấy các tham số trên URL, ví dụ: ?search=admin&page=1&limit=10
+        const { search = "", page = 1, limit = 5 } = req.query;
+    
+        const query = {
+          name: { $regex: search, $options: "i" } // tìm kiếm không phân biệt hoa thường
+        };
+    
+        const skip = (page - 1) * limit;
+    
+         const [brands, total] = await Promise.all([
+          Brand.find(query).skip(skip).limit(Number(limit)),
+          Brand.countDocuments(query)
+        ]);
+    
+        
+            res.json({
+              page: Number(page),
+              total,
+              data: brands,
+            });
+    
+        
+      } catch (err) {
         next(err);
-    }
+      }
 };
 
 export const createBrand = async (req, res, next) => {

@@ -3,23 +3,39 @@ import Product from "../models/Product.js";
 import createError from "../utils/createError.js";
 
 export const getProducts = async (req, res, next) => {
-	try {
-		const products = await Product.find()
-			.populate("brand_id", "name") // lấy tên thương hiệu
-			.populate("category_id", "name"); // lấy tên danh mục;        // lấy tất cả
+  try {
+    const { search = "", page = 1, limit = 5 } = req.query;
 
-		res.status(201).json({
-			mesage: "Danh sách sản phẩm",
-			products: products
-		})
-	} catch (err) {
-		next(err);                                    // đẩy vào errorHandler chung
-	}
+    const query = {
+      name: { $regex: search, $options: "i" },
+    };
+
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await Promise.all([
+      Product.find(query)
+        .skip(skip)
+        .limit(Number(limit))
+        .populate("brand_id", "name")
+        .populate("category_id", "name")
+        .sort({ createdAt: -1 }),
+      Product.countDocuments(query),
+    ]);
+
+    res.json({
+      page: Number(page),
+      total,
+      data: products,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
+
 
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, description, brand_id, category_id, image_url, variants } = req.body;
+    const { name, description, brand_id, category_id, image_url, variants, price, total_stock } = req.body;
 
     const newProduct = new Product({
       name,
@@ -28,6 +44,8 @@ export const createProduct = async (req, res, next) => {
       category_id,
       image_url,
       variants,
+      price,
+      total_stock
     });
 
     const savedProduct = await newProduct.save();
@@ -43,14 +61,13 @@ export const createProduct = async (req, res, next) => {
 
 export const updateProduct = async (req, res, next) => {
   try {
-    const { product_id } = req.params;
+    const { id } = req.params;
     const updateData = req.body;
 
-    // Tìm sản phẩm theo product_id và cập nhật
-    const updated = await Product.findOneAndUpdate(
-      { product_id },
+    const updated = await Product.findByIdAndUpdate(
+      id,  // Sửa lại thành _id
       updateData,
-      { new: true, runValidators: true } // new: trả về doc đã update, runValidators: kiểm tra schema
+      { new: true, runValidators: true }
     );
 
     if (!updated) {
@@ -70,9 +87,9 @@ export const updateProduct = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
 	try {
-		const { product_id } = req.params;
+		const { id } = req.params;
 
-		const deleted = await Product.findOneAndDelete({ product_id });
+		const deleted = await Product.findOneAndDelete(id);
 
 		if (!deleted) {
 			throw createError(404, "Không tìm thấy sản phẩm để xoá.");
@@ -91,7 +108,7 @@ export const getProductDetail = async (req, res, next) => {
 		const { id } = req.params;
 
 		// Tìm sản phẩm theo id
-		const product = await Product.findOne({ id })
+		const product = await Product.findOne(id)
 			.populate("brand_id")       // Nếu bạn muốn hiển thị chi tiết thương hiệu
 			.populate("category_id")   // Nếu bạn muốn hiển thị chi tiết danh mục
 			.populate("variant_id");   // Nếu bạn muốn hiển thị chi tiết danh mục
@@ -112,10 +129,10 @@ export const getProductDetail = async (req, res, next) => {
 // POST /products/:id/add-variant
 export const addVariantToProduct = async (req, res, next) => {
   try {
-    const { product_id } = req.params;
+    const { id } = req.params;
     const { volume, price, stock_quantity } = req.body;
 
-    const product = await Product.findOne({ product_id });
+    const product = await Product.findOne(id);
     if (!product) {
       throw createError(404, "Không tìm thấy sản phẩm");
     }
