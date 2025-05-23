@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const orderDetailSchema = new mongoose.Schema({
-  order_detail_id: { type: String, required: true, unique: true },
   order_id: { type: String, ref: "Order" },
   product_id: { type: String, ref: "Product" },
   quantity: Number,
