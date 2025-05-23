@@ -11,6 +11,8 @@ import { getBrand, createBrand, updateBrand, deleteBrand } from "../controllers/
 
 import { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory } from "../controllers/categoryController.js";
 
+import { createCategory,getCategories,getCategoryById,updateCategory,softDeleteCategory,restoreCategory,hardDeleteCategory, } from "../controllers/categoryController.js";
+import {validateCreateCategory,validateUpdateCategory,validateDeleteCategory,validateRestoreCategory,validateHardDeleteCategory,validateGetCategoryById,} from "../validations/CategoryValidate.js";
 // import role
 import { validateCreateRole, validateUpdateRole, validateDeleteRole, validateGetRole } from "../validations/RoleValidate.js";
 import { getRole, createRole, updateRole, deleteRole } from "../controllers/roleController.js";
@@ -21,6 +23,10 @@ import { getUsers, createUser, updateUser, deleteUser } from "../controllers/use
 
 import { getVariants, createVariant, updateVariant, deleteVariant } from "../controllers/productVariantController.js";
 import { register, login } from "../controllers/authController.js";
+
+import { register, login,sendOtp, resetPassword } from "../controllers/authController.js";
+import { registerValidator, loginValidator } from "../validations/AuthValidate.js";
+import { validBodyRequest } from "../middlewares/validBodyRequest.js";
 const routes = Router();
 
 // routes.use("/products", hanldeProduct...)
@@ -40,11 +46,13 @@ routes.put("/brands/edit/:brand_id", validateUpdateBrand, validateRequest, updat
 routes.delete("/brands/delete/:brand_id", validateDeleteBrand, validateRequest, deleteBrand);
 
 // route category
-routes.get("/categories", getCategories);
-routes.get("/categories/:id", getCategoryById);
-routes.post("/categories", createCategory);
-routes.put("/categories/:id", updateCategory);
-routes.delete("/categories/:id", deleteCategory);
+routes.get("/categories",getCategories);
+routes.get("/categories/:id",validateGetCategoryById,validateRequest,getCategoryById);
+routes.post("/categories",validateCreateCategory,validateRequest,createCategory);
+routes.put("/categories/:id",validateUpdateCategory,validateRequest,updateCategory);
+routes.delete("/categories/:id",validateDeleteCategory,validateRequest,softDeleteCategory);
+routes.patch("/categories/restore/:id",validateRestoreCategory,validateRequest,restoreCategory);
+routes.delete("/categories/hard-delete/:id",validateHardDeleteCategory,validateRequest,hardDeleteCategory);
 
 // route role
 routes.get("/roles", validateGetRole, validateRequest, getRole);
@@ -65,8 +73,11 @@ routes.put("/variants/edit/:variant_id", updateVariant);
 routes.delete("/variants/delete/:variant_id", deleteVariant);
 
 // Route đăng ký
-routes.post("/register", register);
+routes.post("/register", registerValidator, validBodyRequest, register);
 // Route đăng nhập
-routes.post("/login", login);
+routes.post("/login",loginValidator, validBodyRequest, login);
+// Route đổi mật khẩu
+routes.post("/send-otp", sendOtp);
+routes.post("/reset-password", resetPassword);
 export default routes;
 

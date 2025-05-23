@@ -33,6 +33,10 @@ const productSchema = new mongoose.Schema({
     ref: "Category",
     required: true,
   },
+  old_category_id: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Category", 
+    default: null },
   image_url: String,
   variants: [variantSchema], // nhiều biến thể
 
