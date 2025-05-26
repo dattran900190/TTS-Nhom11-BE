@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
 const brandSchema = new mongoose.Schema({
-  brand_id: { type: String, required: true, unique: true },
   name: String,
   origin: String,
-  description: String
+  description: String,
+  is_deleted: { type: Boolean, default: false }  // Soft delete flag
 }, { timestamps: true });
 
 const Brand = mongoose.model("Brand", brandSchema);

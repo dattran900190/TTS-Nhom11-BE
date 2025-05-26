@@ -126,25 +126,4 @@ export const getProductDetail = async (req, res, next) => {
 	}
 };
 
-// POST /products/:id/add-variant
-export const addVariantToProduct = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { volume, price, stock_quantity } = req.body;
 
-    const product = await Product.findOne(id);
-    if (!product) {
-      throw createError(404, "Không tìm thấy sản phẩm");
-    }
-
-    product.variants.push({ volume, price, stock_quantity });
-    await product.save();
-
-    res.json({
-      message: "Thêm biến thể thành công",
-      product,
-    });
-  } catch (err) {
-    next(err);
-  }
-};

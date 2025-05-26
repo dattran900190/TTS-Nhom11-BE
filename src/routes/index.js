@@ -3,7 +3,7 @@ import validateRequest from "../middlewares/validateRequest.js"; // express-vali
 
 // import product
 import { validateGetProduct, validateCreateProduct, validateDeleteProduct, validateUpdateProduct } from "../validations/ProductValidate.js";
-import { getProducts, createProduct, updateProduct, deleteProduct, getProductDetail, addVariantToProduct } from "../controllers/productController.js"; // import thiếu .js
+import { getProducts, createProduct, updateProduct, deleteProduct, getProductDetail } from "../controllers/productController.js"; // import thiếu .js
 
 // import brand
 import { validateGetBrand, validateCreateBrand, validateUpdateBrand, validateDeleteBrand } from "../validations/BrandValidate.js";
@@ -28,7 +28,7 @@ import { getOrders, createOrder, updateOrder, deleteOrder } from "../controllers
 import { validateCreateOrderDetail, validateUpdateOrderDetail, validateDeleteOrderDetail, validateGetOrderDetails } from "../validations/OrderDetailValidate.js";
 import { getOrderDetails, createOrderDetail, updateOrderDetail, deleteOrderDetail } from "../controllers/orderDetailController.js";
 
-import { getVariants, createVariant, updateVariant, deleteVariant } from "../controllers/productVariantController.js";
+import { getVariants, createVariant, updateVariant, deleteVariant, addVariantToProduct } from "../controllers/productVariantController.js";
 // import { register, login } from "../controllers/authController.js";
 
 import { register, login,sendOtp, resetPassword } from "../controllers/authController.js";
@@ -49,8 +49,8 @@ routes.post("/products/addVariant/:id", addVariantToProduct);
 // route brand
 routes.get("/brands", validateGetBrand, validateRequest, getBrand);
 routes.post("/brands/create", validateCreateBrand, validateRequest, createBrand);
-routes.put("/brands/edit/:brand_id", validateUpdateBrand, validateRequest, updateBrand);
-routes.delete("/brands/delete/:brand_id", validateDeleteBrand, validateRequest, deleteBrand);
+routes.put("/brands/edit/:id", validateUpdateBrand, validateRequest, updateBrand);
+routes.delete("/brands/delete/:id", validateDeleteBrand, validateRequest, deleteBrand);
 
 // route category
 routes.get("/categories",getCategories);

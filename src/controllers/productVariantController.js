@@ -1,5 +1,7 @@
 import ProductVariant from "../models/ProductVariant.js";
 import createError from "../utils/createError.js";
+import Product from "../models/Product.js";
+
 
 // Danh sách biến thể
 export const getVariants = async (req, res, next) => {
@@ -64,6 +66,29 @@ export const deleteVariant = async (req, res, next) => {
     }
 
     res.json({ message: "Xoá biến thể thành công" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// POST /products/:id/add-variant
+export const addVariantToProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { volume, price, stock_quantity } = req.body;
+
+    const product = await Product.findById(id);
+    if (!product) {
+      throw createError(404, "Không tìm thấy sản phẩm");
+    }
+
+    product.variants.push({ volume, price, stock_quantity });
+    await product.save();
+
+    res.json({
+      message: "Thêm biến thể thành công",
+      product,
+    });
   } catch (err) {
     next(err);
   }

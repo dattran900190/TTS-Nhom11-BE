@@ -2,9 +2,6 @@
 import { body, param, query } from "express-validator";
 
 export const validateCreateBrand = [
-  body("brand_id")
-    .notEmpty().withMessage("brand_id là bắt buộc.")
-    .isString().withMessage("brand_id phải là chuỗi."),
   body("name")
     .notEmpty().withMessage("Tên thương hiệu là bắt buộc.")
     .isString().withMessage("Tên thương hiệu phải là chuỗi."),

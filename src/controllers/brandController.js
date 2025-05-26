@@ -8,7 +8,8 @@ export const getBrand = async (req, res, next) => {
         const { search = "", page = 1, limit = 5 } = req.query;
     
         const query = {
-          name: { $regex: search, $options: "i" } // tìm kiếm không phân biệt hoa thường
+          name: { $regex: search, $options: "i" }, // tìm kiếm không phân biệt hoa thường
+          is_deleted: false // chỉ lấy brand chưa bị xoá
         };
     
         const skip = (page - 1) * limit;
@@ -17,15 +18,12 @@ export const getBrand = async (req, res, next) => {
           Brand.find(query).skip(skip).limit(Number(limit)),
           Brand.countDocuments(query)
         ]);
-    
         
             res.json({
               page: Number(page),
               total,
               data: brands,
             });
-    
-        
       } catch (err) {
         next(err);
       }
@@ -33,14 +31,9 @@ export const getBrand = async (req, res, next) => {
 
 export const createBrand = async (req, res, next) => {
     try {
-        const { brand_id, name, origin, description } = req.body; // lấy dữ liệu 
+        const { name, origin, description } = req.body; // lấy dữ liệu 
 
-        const existing = await Brand.findOne({ brand_id }); // check id nếu tồn tại thì trả về lỗi 400
-        if (existing) {
-            throw createError(400, "Brand ID đã tồn tại.");
-        }
-
-        const newBrand = new Brand({ brand_id, name, origin, description }); // tạo object mới theo schema
+        const newBrand = new Brand({ name, origin, description }); // tạo object mới theo schema
         const savedBrand = await newBrand.save(); // .save() để ghi vào mongodb
 
         // trả dữ liệu vừa tạo
@@ -55,11 +48,11 @@ export const createBrand = async (req, res, next) => {
 
 export const updateBrand = async (req, res, next) => {
     try {
-        const { brand_id } = req.params;
+        const { id } = req.params;
         const { name, origin, description } = req.body;
 
-        const updated = await Brand.findOneAndUpdate(
-            { brand_id },
+        const updated = await Brand.findByIdAndUpdate(
+            id,
             { name, origin, description },
             { new: true } // trả về bản mới sau khi cập nhật
         );
@@ -79,9 +72,9 @@ export const updateBrand = async (req, res, next) => {
 
 export const deleteBrand = async (req, res, next) => {
     try {
-        const { brand_id } = req.params;
+        const { id } = req.params;
 
-        const deteled = await Brand.findOneAndDelete({ brand_id });
+        const deteled = await Brand.findByIdAndUpdate( id );
 
         if (!deteled) {
             throw createError(400, "Không tìm thấy thương hiệu để xoá.");
@@ -94,3 +87,44 @@ export const deleteBrand = async (req, res, next) => {
         next(err);
     }
 }
+
+export const softDeleteBrand = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const brand = await Brand.findByIdAndUpdate(
+      id,
+      { is_deleted: true },
+      { new: true }
+    );
+
+    if (!brand) {
+      return res.status(404).json({ message: "Không tìm thấy thương hiệu" });
+    }
+
+    res.json({ message: "Đã xoá mềm thương hiệu", brand });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export const restoreBrand = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const brand = await Brand.findByIdAndUpdate(
+      id,
+      { is_deleted: false },
+      { new: true }
+    );
+
+    if (!brand) {
+      return res.status(404).json({ message: "Không tìm thấy thương hiệu" });
+    }
+
+    res.json({ message: "Khôi phục thương hiệu thành công", brand });
+  } catch (err) {
+    next(err);
+  }
+};
