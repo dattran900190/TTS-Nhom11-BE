@@ -2,6 +2,7 @@ import Category from "../models/Category.js";
 import Product from "../models/Product.js";
 import createError from "../utils/createError.js";
 import { validationResult } from "express-validator";
+import messages from "../constants/index.js";
 
 const getUncategorizedCategory = async () => {
   let category = await Category.findOne({ name: "Không phân loại" });
@@ -28,7 +29,7 @@ export const createCategory = async (req, res, next) => {
     const saved = await newCategory.save();
     res.status(201).json(saved);
   } catch (err) {
-    next(createError(400, "Tạo danh mục thất bại"));
+    next(createError(400, messages.CATEGORY.CREATE_FAILED));
   }
 };
 
@@ -65,7 +66,7 @@ export const getCategoryById = async (req, res, next) => {
       _id: req.params.id,
       deleted: false,
     });
-    if (!category) return next(createError(404, "Không tìm thấy danh mục"));
+    if (!category) return next(createError(404, messages.CATEGORY.NOT_FOUND));
     res.json(category);
   } catch (err) {
     next(err);
@@ -82,12 +83,10 @@ export const updateCategory = async (req, res, next) => {
       _id: req.params.id,
       deleted: false,
     });
-    if (!category) return next(createError(404, "Không tìm thấy danh mục"));
+    if (!category) return next(createError(404, messages.CATEGORY.NOT_FOUND));
 
     if (isUncategorized(category))
-      return next(
-        createError(403, "Không được phép sửa danh mục 'Không phân loại'")
-      );
+      return next(createError(403, messages.CATEGORY.UPDATE_FORBIDDEN));
 
     const updated = await Category.findOneAndUpdate(
       { _id: req.params.id, deleted: false },
@@ -106,13 +105,10 @@ export const softDeleteCategory = async (req, res, next) => {
       _id: req.params.id,
       deleted: false,
     });
-    if (!category)
-      return next(createError(404, "Không tìm thấy danh mục để xóa"));
+    if (!category) return next(createError(404, messages.CATEGORY.NOT_FOUND));
 
     if (isUncategorized(category))
-      return next(
-        createError(403, "Không được phép xóa danh mục 'Không phân loại'")
-      );
+      return next(createError(403, messages.CATEGORY.DELETE_FORBIDDEN));
 
     const uncategorizedCategory = await getUncategorizedCategory();
 
@@ -128,8 +124,7 @@ export const softDeleteCategory = async (req, res, next) => {
     await category.save();
 
     res.json({
-      message:
-        "Xóa mềm thành công, sản phẩm được chuyển sang danh mục 'Không phân loại'",
+      message: messages.CATEGORY.SOFT_DELETE_SUCCESS,
     });
   } catch (err) {
     next(err);
@@ -144,8 +139,7 @@ export const restoreCategory = async (req, res, next) => {
       { new: true }
     );
 
-    if (!restored)
-      return next(createError(404, "Không tìm thấy danh mục để khôi phục"));
+    if (!restored) return next(createError(404, messages.CATEGORY.NOT_FOUND));
 
     const uncategorizedCategory = await getUncategorizedCategory();
 
@@ -158,8 +152,7 @@ export const restoreCategory = async (req, res, next) => {
     );
 
     res.json({
-      message:
-        "Khôi phục danh mục thành công, sản phẩm được trả về danh mục cũ",
+      message: messages.CATEGORY.RESTORE_SUCCESS,
       data: restored,
     });
   } catch (err) {
@@ -170,13 +163,10 @@ export const restoreCategory = async (req, res, next) => {
 export const hardDeleteCategory = async (req, res, next) => {
   try {
     const category = await Category.findById(req.params.id);
-    if (!category)
-      return next(createError(404, "Không tìm thấy danh mục để xóa"));
+    if (!category) return next(createError(404, messages.CATEGORY.NOT_FOUND));
 
     if (isUncategorized(category))
-      return next(
-        createError(403, "Không được phép xóa danh mục 'Không phân loại'")
-      );
+      return next(createError(403, messages.CATEGORY.DELETE_FORBIDDEN));
 
     const uncategorizedCategory = await getUncategorizedCategory();
 
@@ -191,8 +181,7 @@ export const hardDeleteCategory = async (req, res, next) => {
     await Category.deleteOne({ _id: category._id });
 
     res.json({
-      message:
-        "Xóa cứng thành công",
+      message: messages.CATEGORY.HARD_DELETE_SUCCESS,
     });
   } catch (err) {
     next(err);
