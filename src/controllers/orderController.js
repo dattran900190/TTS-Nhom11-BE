@@ -25,14 +25,18 @@ export const createOrder = async (req, res, next) => {
 
 export const getOrders = async (req, res, next) => {
   try {
-    const { user_id, status, page = 1, limit = 10 } = req.query;
+    const { user_id, status, page = 1, limit = 5 } = req.query;
+    
     const filter = {};
     if (user_id) filter.user_id = user_id;
     if (status) filter.status = status;
 
     const skip = (page - 1) * limit;
+
     const [orders, total] = await Promise.all([
       Order.find(filter)
+        .populate({ path: "user_id" })          // lấy thông tin người dùng
+        // .populate({ path: "discount_id" })      // lấy thông tin mã giảm giá
         .skip(skip)
         .limit(Number(limit))
         .sort({ order_date: -1 }),
@@ -48,6 +52,7 @@ export const getOrders = async (req, res, next) => {
     next(err);
   }
 };
+
 
 export const getOrderById = async (req, res, next) => {
   try {

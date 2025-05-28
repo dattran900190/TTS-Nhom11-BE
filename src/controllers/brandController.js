@@ -1,5 +1,6 @@
 import Brand from "../models/Brand.js";
 import createError from "../utils/createError.js";
+import messages from "../constants/index.js";
 
 
 export const getBrand = async (req, res, next) => {
@@ -47,7 +48,7 @@ export const createBrand = async (req, res, next) => {
 
         // trả dữ liệu vừa tạo
         res.status(201).json({
-            message: "Thêm thương hiệu thành công",
+            message: messages.BRAND.CREATE_SUCCESS,
             Brand: savedBrand
         });
     } catch (err) {
@@ -67,11 +68,11 @@ export const updateBrand = async (req, res, next) => {
         );
 
         if (!updated) {
-            throw createError(400, "Không tìm thấy thương hiệu để cập nhật.");
+            throw createError({ message: messages.BRAND.NOT_FOUND });
         }
 
         res.json({
-            message: "Cập nhật thương hiệu thành công",
+            message: messages.BRAND.UPDATE_SUCCESS,
             brand: updated
         })
     } catch (err) {
@@ -86,11 +87,11 @@ export const deleteBrand = async (req, res, next) => {
         const deteled = await Brand.findByIdAndUpdate(id);
 
         if (!deteled) {
-            throw createError(400, "Không tìm thấy thương hiệu để xoá.");
+            throw createError({ messages: messages.BRAND.NOT_FOUND});
         }
 
         res.json({
-            message: "Xoá thương hiệu thành công",
+            message: messages.BRAND.HARD_DELETE_SUCCESS,
         })
     } catch (err) {
         next(err);
@@ -108,10 +109,13 @@ export const softDeleteBrand = async (req, res, next) => {
         );
 
         if (!brand) {
-            return res.status(404).json({ message: "Không tìm thấy thương hiệu" });
+            throw createError({ message: messages.BRAND.NOT_FOUND });
         }
 
-        res.json({ message: "Đã xoá mềm thương hiệu", brand });
+        res.json({ 
+            message: messages.BRAND.SOFT_DELETE_SUCCESS, 
+            brand 
+        });
     } catch (err) {
         next(err);
     }
@@ -129,10 +133,13 @@ export const restoreBrand = async (req, res, next) => {
         );
 
         if (!brand) {
-            return res.status(404).json({ message: "Không tìm thấy thương hiệu" });
+            throw createError({ message: messages.BRAND.NOT_FOUND });
         }
 
-        res.json({ message: "Khôi phục thương hiệu thành công", brand });
+        res.json({ 
+            message: messages.BRAND.REGISTER_SUCCESS, 
+            brand 
+        });
     } catch (err) {
         next(err);
     }

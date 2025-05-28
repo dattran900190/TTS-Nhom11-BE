@@ -2,10 +2,10 @@
 import mongoose from "mongoose";
 
 const productVariantSchema = new mongoose.Schema({
-  variant_id: {
-    type: String,
-    required: true,
-    unique: true
+  product_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true
   },
   volume: {
     type: Number,

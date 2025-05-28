@@ -19,16 +19,44 @@ export const createOrderDetail = async (req, res, next) => {
 
 export const getOrderDetails = async (req, res, next) => {
   try {
-    const { order_id, product_id } = req.query;
+    const { order_id, product_id, search = "", page = 1, limit = 5 } = req.query;
+
     const filter = {};
     if (order_id) filter.order_id = order_id;
     if (product_id) filter.product_id = product_id;
-    const details = await OrderDetail.find(filter);
-    res.json({ data: details });
+
+    // Nếu bạn muốn tìm kiếm theo tên sản phẩm:
+    if (search) {
+      // Tìm tất cả sản phẩm có tên phù hợp
+      const matchedProducts = await Product.find({
+        name: { $regex: search, $options: "i" }
+      }).select("_id");
+
+      const matchedIds = matchedProducts.map((p) => p._id);
+      filter.product_id = { $in: matchedIds };
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [details, total] = await Promise.all([
+      OrderDetail.find(filter)
+        .populate("product_id")
+        .skip(skip)
+        .limit(Number(limit)),
+      OrderDetail.countDocuments(filter)
+    ]);
+
+    res.json({
+      page: Number(page),
+      total,
+      data: details
+    });
   } catch (err) {
     next(err);
   }
 };
+
+
 
 export const updateOrderDetail = async (req, res, next) => {
   try {

@@ -2,8 +2,8 @@ import { Router } from "express";
 import validateRequest from "../middlewares/validateRequest.js"; // express-validator
 
 // import product
-import { validateGetProduct, validateCreateProduct, validateDeleteProduct, validateUpdateProduct } from "../validations/ProductValidate.js";
-import { getProducts, createProduct, updateProduct, deleteProduct, getProductDetail } from "../controllers/productController.js"; // import thiếu .js
+import { validateGetProduct, validateCreateProduct, validateDeleteProduct, validateUpdateProduct, validatesoftDeleteProduct, validateRestoreProduct, validateDetailProduct, validateAddVariantProduct } from "../validations/ProductValidate.js";
+import { getProducts, createProduct, updateProduct, deleteProduct, getProductDetail, softDeleteProduct, restoreProduct } from "../controllers/productController.js"; // import thiếu .js
 
 // import brand
 import { validateGetBrand, validateCreateBrand, validateUpdateBrand, validateDeleteBrand, validateRestoreBrand, validatesoftDeleteBrand } from "../validations/BrandValidate.js";
@@ -24,7 +24,9 @@ import { getOrders, createOrder, updateOrder, deleteOrder } from "../controllers
 import { validateCreateOrderDetail, validateUpdateOrderDetail, validateDeleteOrderDetail, validateGetOrderDetails } from "../validations/OrderDetailValidate.js";
 import { getOrderDetails, createOrderDetail, updateOrderDetail, deleteOrderDetail } from "../controllers/orderDetailController.js";
 
-import { getVariants, createVariant, updateVariant, deleteVariant, addVariantToProduct } from "../controllers/productVariantController.js";
+// import variant
+import { getVariants, createVariant, updateVariant, deleteVariant } from "../controllers/productVariantController.js";
+import { validateGetVariants, validateCreateVariant, validateUpdateVariant, validateDeleteVariant } from "../validations/VariantValidate.js";
 // import { register, login } from "../controllers/authController.js";
 
 import { register, login,sendOtp, resetPassword, confirmEmail, refreshToken  } from "../controllers/authController.js";
@@ -33,25 +35,26 @@ import { validBodyRequest } from "../middlewares/validBodyRequest.js";
 import { authenticateToken, authorizeRoles } from "../middlewares/authMiddleware.js";
 const routes = Router();
 
-// routes.use("/products", hanldeProduct...)
+// | `/tenRoute?only_deleted=true`    | Chỉ lấy đã data bị xoá mềm
+// | `/tenRoute?include_deleted=true` | Lấy tất cả data bao gồm xoá mềm
 
 // route product
 routes.get("/products", validateGetProduct, validateRequest, getProducts);
 routes.post("/products/create",authenticateToken, authorizeRoles('admin'), validateCreateProduct, validateRequest, createProduct);
 routes.put("/products/edit/:id",authenticateToken, authorizeRoles('admin'), validateUpdateProduct, validateRequest, updateProduct);
 routes.delete("/products/delete/:id",authenticateToken, authorizeRoles('admin'), validateDeleteProduct, validateRequest, deleteProduct);
-routes.get("/products/show/:id",authenticateToken, authorizeRoles('admin'), getProductDetail);
-routes.post("/products/addVariant/:id",authenticateToken, authorizeRoles('admin'), addVariantToProduct);
+routes.get("/products/show/:id",authenticateToken, authorizeRoles('admin'), validateDetailProduct, validateRequest, getProductDetail);
+// routes.post("/products/addVariant/:id",authenticateToken, authorizeRoles('admin'), validateAddVariantProduct, validateRequest, addVariantToProduct);
+routes.delete("/products/soft-delete/:id",authenticateToken, authorizeRoles('admin'), validatesoftDeleteProduct, validateRequest, softDeleteProduct);
+routes.patch("/products/restore/:id", authenticateToken, authorizeRoles('admin'), validateRestoreProduct, validateRequest, restoreProduct); 
 
 // route brand
-routes.get("/brands", validateGetBrand, validateRequest, getBrand); // Lấy danh sách brand chưa bị xoá 
-                                                                    // | `/brands?only_deleted=true`    | Chỉ lấy brand đã bị xoá mềm
-                                                                    // | `/brands?include_deleted=true` | Lấy tất cả brand bao gồm xoá mềm
+routes.get("/brands", validateGetBrand, validateRequest, getBrand);                                                             
 routes.post("/brands/create",authenticateToken, authorizeRoles('admin'), validateCreateBrand, validateRequest, createBrand);
 routes.put("/brands/edit/:id",authenticateToken, authorizeRoles('admin'), validateUpdateBrand, validateRequest, updateBrand);
 routes.delete("/brands/delete/:id",authenticateToken, authorizeRoles('admin'), validateDeleteBrand, validateRequest, deleteBrand);
 routes.delete("/brands/soft-delete/:id",authenticateToken, authorizeRoles('admin'), validatesoftDeleteBrand, validateRequest, softDeleteBrand);
-routes.patch("/brands/restore/:id", authenticateToken, authorizeRoles('admin'), validateRestoreBrand, validateRequest, restoreBrand); // Khôi phục brand đã bị xoá
+routes.patch("/brands/restore/:id", authenticateToken, authorizeRoles('admin'), validateRestoreBrand, validateRequest, restoreBrand); 
 
 // route category
 routes.get("/categories",getCategories);
@@ -81,10 +84,10 @@ routes.put("/order-details/:order_detail_id",authenticateToken, authorizeRoles('
 routes.delete("/order-details/:order_detail_id",authenticateToken, authorizeRoles('admin'), validateDeleteOrderDetail, validateRequest, deleteOrderDetail);
 
 // route variant
-routes.get("/variants", getVariants);
-routes.post("/variants/create",authenticateToken, authorizeRoles('admin'), createVariant);
-routes.put("/variants/edit/:variant_id",authenticateToken, authorizeRoles('admin'), updateVariant);
-routes.delete("/variants/delete/:variant_id",authenticateToken, authorizeRoles('admin'), deleteVariant);
+routes.get("/variants", validateGetVariants, validateRequest, getVariants);
+routes.post("/variants/create",authenticateToken, authorizeRoles('admin'), validateCreateVariant, validateRequest, createVariant);
+routes.put("/variants/edit/:id",authenticateToken, authorizeRoles('admin'), validateUpdateVariant, validateRequest, updateVariant);
+routes.delete("/variants/delete/:id",authenticateToken, authorizeRoles('admin'), validateDeleteVariant, validateRequest, deleteVariant);
 
 // AUTH ROUTES (Đăng ký, đăng nhập, đổi mật khẩu không cần auth)
 routes.post("/register", registerValidator, validBodyRequest, register);

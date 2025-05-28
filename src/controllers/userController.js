@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import createError from "../utils/createError.js";
+import messages from "../constants/index.js";
 
 
 export const getUsers = async (req, res, next) => {
@@ -40,7 +41,7 @@ export const createUser = async (req, res, next) => {
         // Kiểm tra email đã tồn tại chưa
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            throw createUser(400, "Email đã tồn tại");
+            throw createUser({ message: messages.USER.NOT_FOUND });
         }
 
         const newUser = new User({
@@ -56,7 +57,7 @@ export const createUser = async (req, res, next) => {
 
         // trả dữ liệu vừa tạo
         res.status(201).json({
-            message: "Thêm người dùng thành công",
+            message: messages.USER.CREATE_SUCCESS,
             user: savedUser
         });
     } catch (err) {
@@ -77,7 +78,7 @@ export const updateUser = async (req, res, next) => {
 
         // Nếu người dùng cố cập nhật email thì báo lỗi
         if (req.body.email) {
-            throw createError(400, "Không được phép thay đổi email");
+            throw createError({ message: messages.USER.NO_CHANGE_EMAIL });
         }
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -89,11 +90,11 @@ export const updateUser = async (req, res, next) => {
         );
 
         if (!updatedUser) {
-            throw createUser(400, "Không tìm thấy người dùng");
+            throw createUser({ message: messages.USER.NOT_FOUND });
         }
 
         res.json({
-            message: "Cập nhật người dùng thành công",
+            message: messages.USER.UPDATE_SUCCESS,
             user: updatedUser
         })
     } catch (err) {
@@ -107,13 +108,13 @@ export const deleteUser = async (req, res, next) => {
 
         const deletedUser = await User.findByIdAndDelete(id);
         if (!deletedUser) {
-            throw createError(400, "Không tìm thấy người dùng để xoá");
+            throw createError({ message: messages.USER.NOT_FOUND });
         }
 
         res.json({
-            message: "Xoá người dùng thành công",
+            message: messages.USER.HARD_DELETE_SUCCESS,
         })
     } catch (err) {
-        res.status(500).json({ message: "Lỗi xoá người dùng", error: err.message });
+        next(err);
     }
 };
