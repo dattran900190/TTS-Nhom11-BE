@@ -1,100 +1,22 @@
 import { Router } from "express";
-import validateRequest from "../middlewares/validateRequest.js"; // express-validator
+import authRoutes from "./authRoutes.js";
+import brandRoutes from "./brandRoutes.js";
+import categoryRoutes from "./categoryRoutes.js";
+import orderRoutes from "./orderRoutes.js";
+import orderDetailRoutes from "./orderDetailRoutes.js";
+import productRoutes from "./productRoutes.js";
+import userRoutes from "./userRoutes.js";
+import variantRoutes from "./variantRoutes.js";
 
-// import product
-import { validateGetProduct, validateCreateProduct, validateDeleteProduct, validateUpdateProduct, validatesoftDeleteProduct, validateRestoreProduct, validateDetailProduct, validateAddVariantProduct } from "../validations/ProductValidate.js";
-import { getProducts, createProduct, updateProduct, deleteProduct, getProductDetail, softDeleteProduct, restoreProduct } from "../controllers/productController.js"; // import thiếu .js
-
-// import brand
-import { validateGetBrand, validateCreateBrand, validateUpdateBrand, validateDeleteBrand, validateRestoreBrand, validatesoftDeleteBrand } from "../validations/BrandValidate.js";
-import { getBrand, createBrand, updateBrand, deleteBrand, softDeleteBrand, restoreBrand } from "../controllers/brandController.js";
-
-import { createCategory,getCategories,getCategoryById,updateCategory,softDeleteCategory,restoreCategory,hardDeleteCategory, } from "../controllers/categoryController.js";
-import {validateCreateCategory,validateUpdateCategory,validateDeleteCategory,validateRestoreCategory,validateHardDeleteCategory,validateGetCategoryById,} from "../validations/CategoryValidate.js";
-
-//import user
-import { validateCreateUser, validateUpdateUser, validateDeleteUser, validateGetUser } from "../validations/UserValidate.js";
-import { getUsers, createUser, updateUser, deleteUser } from "../controllers/userController.js";
-
-//import order
-import { validateCreateOrder, validateUpdateOrder, validateDeleteOrder, validateGetOrders} from "../validations/OrderValidate.js";
-import { getOrders, createOrder, updateOrder, deleteOrder } from "../controllers/orderController.js";
-
-//import order detail
-import { validateCreateOrderDetail, validateUpdateOrderDetail, validateDeleteOrderDetail, validateGetOrderDetails } from "../validations/OrderDetailValidate.js";
-import { getOrderDetails, createOrderDetail, updateOrderDetail, deleteOrderDetail } from "../controllers/orderDetailController.js";
-
-// import variant
-import { getVariants, createVariant, updateVariant, deleteVariant } from "../controllers/productVariantController.js";
-import { validateGetVariants, validateCreateVariant, validateUpdateVariant, validateDeleteVariant } from "../validations/VariantValidate.js";
-// import { register, login } from "../controllers/authController.js";
-
-import { register, login,sendOtp, resetPassword, confirmEmail, refreshToken  } from "../controllers/authController.js";
-import { registerValidator, loginValidator } from "../validations/AuthValidate.js";
-import { validBodyRequest } from "../middlewares/validBodyRequest.js";
-import { authenticateToken, authorizeRoles } from "../middlewares/authMiddleware.js";
 const routes = Router();
 
-// | `/tenRoute?only_deleted=true`    | Chỉ lấy đã data bị xoá mềm
-// | `/tenRoute?include_deleted=true` | Lấy tất cả data bao gồm xoá mềm
+routes.use("/auth", authRoutes);
+routes.use("/brands", brandRoutes);
+routes.use("/categories", categoryRoutes);
+routes.use("/orders", orderRoutes);
+routes.use("/order-details", orderDetailRoutes);
+routes.use("/products", productRoutes);
+routes.use("/users", userRoutes);
+routes.use("/variants", variantRoutes);
 
-// route product
-routes.get("/products", validateGetProduct, validateRequest, getProducts);
-routes.post("/products/create",authenticateToken, authorizeRoles('admin'), validateCreateProduct, validateRequest, createProduct);
-routes.put("/products/edit/:id",authenticateToken, authorizeRoles('admin'), validateUpdateProduct, validateRequest, updateProduct);
-routes.delete("/products/delete/:id",authenticateToken, authorizeRoles('admin'), validateDeleteProduct, validateRequest, deleteProduct);
-routes.get("/products/show/:id",authenticateToken, authorizeRoles('admin'), validateDetailProduct, validateRequest, getProductDetail);
-// routes.post("/products/addVariant/:id",authenticateToken, authorizeRoles('admin'), validateAddVariantProduct, validateRequest, addVariantToProduct);
-routes.delete("/products/soft-delete/:id",authenticateToken, authorizeRoles('admin'), validatesoftDeleteProduct, validateRequest, softDeleteProduct);
-routes.patch("/products/restore/:id", authenticateToken, authorizeRoles('admin'), validateRestoreProduct, validateRequest, restoreProduct); 
-
-// route brand
-routes.get("/brands", validateGetBrand, validateRequest, getBrand);                                                             
-routes.post("/brands/create",authenticateToken, authorizeRoles('admin'), validateCreateBrand, validateRequest, createBrand);
-routes.put("/brands/edit/:id",authenticateToken, authorizeRoles('admin'), validateUpdateBrand, validateRequest, updateBrand);
-routes.delete("/brands/delete/:id",authenticateToken, authorizeRoles('admin'), validateDeleteBrand, validateRequest, deleteBrand);
-routes.delete("/brands/soft-delete/:id",authenticateToken, authorizeRoles('admin'), validatesoftDeleteBrand, validateRequest, softDeleteBrand);
-routes.patch("/brands/restore/:id", authenticateToken, authorizeRoles('admin'), validateRestoreBrand, validateRequest, restoreBrand); 
-
-// route category
-routes.get("/categories",getCategories);
-routes.get("/categories/:id",authenticateToken, authorizeRoles('admin'), validateGetCategoryById,validateRequest,getCategoryById);
-routes.post("/categories",authenticateToken, authorizeRoles('admin'),validateCreateCategory,validateRequest,createCategory);
-routes.put("/categories/:id",authenticateToken, authorizeRoles('admin'),validateUpdateCategory,validateRequest,updateCategory);
-routes.delete("/categories/:id",authenticateToken, authorizeRoles('admin'),validateDeleteCategory,validateRequest,softDeleteCategory);
-routes.patch("/categories/restore/:id",authenticateToken, authorizeRoles('admin'),validateRestoreCategory,validateRequest,restoreCategory);
-routes.delete("/categories/hard-delete/:id",authenticateToken, authorizeRoles('admin'),validateHardDeleteCategory,validateRequest,hardDeleteCategory);
-
-// route user
-routes.get("/users",authenticateToken, authorizeRoles('admin'), validateGetUser, validateRequest, getUsers);
-routes.post("/users/create",authenticateToken, authorizeRoles('admin'), validateCreateUser, validateRequest, createUser);
-routes.put("/users/edit/:id",authenticateToken, authorizeRoles('admin'), validateUpdateUser, validateRequest, updateUser);
-routes.delete("/users/delete/:id",authenticateToken, authorizeRoles('admin'), validateDeleteUser, validateRequest, deleteUser);
-
-// Orders
-routes.get("/orders",authenticateToken, authorizeRoles('admin'), validateGetOrders, validateRequest, getOrders);
-routes.post("/orders/create",authenticateToken, authorizeRoles('admin'), validateCreateOrder, validateRequest, createOrder);
-routes.put("/orders/edit/:id",authenticateToken, authorizeRoles('admin'), validateUpdateOrder, validateRequest, updateOrder);
-routes.delete("/orders/delete/:id",authenticateToken, authorizeRoles('admin'), validateDeleteOrder, validateRequest, deleteOrder);
-
-// OrderDetails
-routes.get("/order-details",authenticateToken, authorizeRoles('admin'), validateGetOrderDetails, validateRequest, getOrderDetails);
-routes.post("/orders/:id/details",authenticateToken, authorizeRoles('admin'), validateCreateOrderDetail, validateRequest, createOrderDetail);
-routes.put("/order-details/:order_detail_id",authenticateToken, authorizeRoles('admin'), validateUpdateOrderDetail, validateRequest, updateOrderDetail);
-routes.delete("/order-details/:order_detail_id",authenticateToken, authorizeRoles('admin'), validateDeleteOrderDetail, validateRequest, deleteOrderDetail);
-
-// route variant
-routes.get("/variants", validateGetVariants, validateRequest, getVariants);
-routes.post("/variants/create",authenticateToken, authorizeRoles('admin'), validateCreateVariant, validateRequest, createVariant);
-routes.put("/variants/edit/:id",authenticateToken, authorizeRoles('admin'), validateUpdateVariant, validateRequest, updateVariant);
-routes.delete("/variants/delete/:id",authenticateToken, authorizeRoles('admin'), validateDeleteVariant, validateRequest, deleteVariant);
-
-// AUTH ROUTES (Đăng ký, đăng nhập, đổi mật khẩu không cần auth)
-routes.post("/register", registerValidator, validBodyRequest, register);
-routes.post("/login", loginValidator, validBodyRequest, login);
-routes.post("/send-otp", sendOtp);
-routes.get("/confirm-email", confirmEmail);
-routes.post("/reset-password", resetPassword);
-routes.post('/refresh-token', refreshToken);
 export default routes;
-
