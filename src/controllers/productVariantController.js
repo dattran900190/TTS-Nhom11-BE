@@ -2,7 +2,7 @@ import ProductVariant from "../models/ProductVariant.js";
 import createError from "../utils/createError.js";
 import Product from "../models/Product.js";
 import messages from "../constants/index.js";
-
+import { updateCartPricesByProductOrVariant } from './cartController.js';
 
 // Danh sách biến thể
 export const getVariants = async (req, res, next) => {
@@ -47,14 +47,20 @@ export const updateVariant = async (req, res, next) => {
     const { id } = req.params;
     const updateFields = req.body;
 
+    const oldVariant = await ProductVariant.findById(id);
+    if (!oldVariant) {
+      throw createError({ message: messages.PRODUCT_VARIANT.NOT_FOUND });
+    }
+
     const updated = await ProductVariant.findByIdAndUpdate(
       id,
       updateFields,
       { new: true, runValidators: true }
     );
 
-    if (!updated) {
-      throw createError({ message: messages.PRODUCT_VARIANT.NOT_FOUND });
+    // Nếu price thay đổi, cập nhật giá trong giỏ hàng
+    if (updateFields.price !== undefined && updateFields.price !== oldVariant.price) {
+      await updateCartPricesByProductOrVariant({ product_id: undefined, variant_id: id, newPrice: updateFields.price });
     }
 
     res.json({

@@ -6,10 +6,12 @@ export const generateTokens = (user) => {
     _id: user._id,
     role: user.role,
   };
-
+  const refreshPayload = {
+    _id: user._id, 
+  };
   return {
-    accessToken: jwt.sign(payload, JWT_SECRET, { expiresIn: "15m" }),
-    refreshToken: jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: "7d" }),
+    accessToken: jwt.sign(payload, JWT_SECRET, { expiresIn: "4h" }),
+    refreshToken: jwt.sign(refreshPayload, JWT_REFRESH_SECRET, { expiresIn: "7d" }),
   };
 };
 

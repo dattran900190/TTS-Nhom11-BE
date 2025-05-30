@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
 
 const cartSchema = new mongoose.Schema({
-  cart_id: { type: String, required: true, unique: true },
-  user_id: { type: String, ref: "User" },
-  total_price: Number
+  user_id: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+  total_price: { type: Number, required: true, default: 0 }
 }, { timestamps: true });
 
 const Cart = mongoose.model("Cart", cartSchema);

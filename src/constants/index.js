@@ -82,8 +82,26 @@ const messages = {
     REGISTER_SUCCESS: "Khôi phục tài khoản thành công",
     DETAIL_SUCCESS: "Chi tiết tài khoản",
     NO_CHANGE_EMAIL: "Không được phép thay đổi email",
-  }
-
+  },
+  CART: {
+    CREATE_FAILED: "Tạo giỏ hàng thất bại",
+    ALREADY_EXISTS: "Giỏ hàng đã tồn tại",
+    ADD_ITEM_SUCCESS: "Đã thêm sản phẩm vào giỏ hàng.",
+    ADD_ITEM_FAILED: "Thêm sản phẩm thất bại",
+    PRODUCT_NOT_FOUND: "Sản phẩm không tồn tại.",
+    VARIANT_NOT_FOUND: "Biến thể không tồn tại.",
+    UPDATE_ITEM_SUCCESS: "Đã cập nhật số lượng sản phẩm.",
+    UPDATE_FAILED: "Cập nhật thất bại",
+    DELETE_ITEM_SUCCESS: "Đã xóa sản phẩm.",
+    DELETE_FAILED: "Xóa sản phẩm thất bại",
+    NOT_FOUND: "Không tìm thấy giỏ hàng.",
+    ITEM_NOT_FOUND: "Không tìm thấy sản phẩm trong giỏ.",
+    GET_SUCCESS: "Lấy giỏ hàng thành công",
+    USER_ID_REQUIRED: "user_id là bắt buộc",
+    CART_ID_PRODUCT_QUANTITY_REQUIRED:
+      "cart_id, product_id và quantity là bắt buộc",
+    QUANTITY_MINIMUM: "Số lượng phải lớn hơn hoặc bằng 1",
+  },
 };
 
 export default messages;

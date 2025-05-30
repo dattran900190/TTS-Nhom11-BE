@@ -3,7 +3,7 @@ import Product from "../models/Product.js";
 import createError from "../utils/createError.js";
 import messages from "../constants/index.js";
 import ProductVariant from "../models/ProductVariant.js";
-
+import { updateCartPricesByProductOrVariant } from './cartController.js';
 export const getProducts = async (req, res, next) => {
   try {
     const { search = "", page = 1, limit = 5, include_deleted, only_deleted } = req.query;
@@ -90,14 +90,20 @@ export const updateProduct = async (req, res, next) => {
     const { id } = req.params;
     const updateData = req.body;
 
+    const oldProduct = await Product.findById(id);
+    if (!oldProduct) {
+      throw createError({ message: messages.PRODUCT.NOT_FOUND });
+    }
+
     const updated = await Product.findByIdAndUpdate(
       id,
       updateData,
       { new: true, runValidators: true }
     );
 
-    if (!updated) {
-      throw createError({ message: messages.PRODUCT.NOT_FOUND });
+    // Nếu price thay đổi, cập nhật lại giá trong giỏ hàng
+    if (updateData.price !== undefined && updateData.price !== oldProduct.price) {
+      await updateCartPricesByProductOrVariant({ product_id: id, variant_id: undefined, newPrice: updateData.price });
     }
 
     res.json({

@@ -9,6 +9,8 @@ import messages from "../constants/index.js";
 import { generateTokens, generateConfirmEmailToken } from "../utils/jwt.js";
 import { generateOtp } from '../middlewares/optMiddleware.js';
 import {JWT_SECRET,JWT_REFRESH_SECRET,JWT_CONFIRM_EMAIL_SECRET} from "../configs/enviroments.js";
+import Cart from "../models/Cart.js";
+
 export const register = async (req, res, next) => {
   try {
     const { email, password, role } = req.body;
@@ -22,6 +24,10 @@ export const register = async (req, res, next) => {
       role: role === "admin" ? "admin" : "user",
       isEmailConfirmed: false,
     });
+
+    // Tạo giỏ hàng cho user mới ngay sau khi tạo tài khoản
+    const newCart = new Cart({ user_id: newUser._id, total_price: 0 });
+    await newCart.save();
 
     const token = generateConfirmEmailToken(newUser);
     await sendConfirmEmail(email, req.body.name, token);
@@ -42,6 +48,7 @@ export const register = async (req, res, next) => {
     next(error);
   }
 };
+
 
 export const confirmEmail = async (req, res, next) => {
   try {
