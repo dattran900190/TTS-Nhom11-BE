@@ -6,35 +6,20 @@ import {
   validateCreateVariant,
   validateUpdateVariant,
   validateDeleteVariant,
+  validateAddVariantVariant,
+  validatesoftDeleteVariant,
+  validateRestoreVariant
 } from "../validations/VariantValidate.js";
-import { getVariants, createVariant, updateVariant, deleteVariant } from "../controllers/productVariantController.js";
+import { getVariants, createVariant, updateVariant, deleteVariant, addVariantToProduct, softDeleteVariant, restoreVariant } from "../controllers/productVariantController.js";
 
 const router = Router();
 
-router.get("/variants", validateGetVariants, validateRequest, getVariants);
-router.post(
-  "/variants/create",
-  authenticateToken,
-  authorizeRoles("admin", "superadmin"),
-  validateCreateVariant,
-  validateRequest,
-  createVariant
-);
-router.put(
-  "/variants/edit/:id",
-  authenticateToken,
-  authorizeRoles("admin", "superadmin"),
-  validateUpdateVariant,
-  validateRequest,
-  updateVariant
-);
-router.delete(
-  "/variants/delete/:id",
-  authenticateToken,
-  authorizeRoles("admin", "superadmin"),
-  validateDeleteVariant,
-  validateRequest,
-  deleteVariant
-);
+router.get("/", validateGetVariants, validateRequest, getVariants);
+router.post("/create",authenticateToken,authorizeRoles("admin", "superadmin"),validateCreateVariant,validateRequest,createVariant);
+router.put("/edit/:id",authenticateToken,authorizeRoles("admin", "superadmin"),validateUpdateVariant,validateRequest,updateVariant);
+router.delete("/delete/:id",authenticateToken,authorizeRoles("admin", "superadmin"),validateDeleteVariant,validateRequest,deleteVariant);
+router.post("/addVariant/:id",authenticateToken,authorizeRoles("admin", "superadmin"),validateAddVariantVariant,validateRequest,addVariantToProduct);
+router.delete("/soft-delete/:id", authenticateToken,authorizeRoles("admin", "superadmin"),validatesoftDeleteVariant,validateRequest, softDeleteVariant);
+router.patch("/restore/:id", authenticateToken,authorizeRoles("admin", "superadmin"),validateRestoreVariant,validateRequest, restoreVariant);
 
 export default router;

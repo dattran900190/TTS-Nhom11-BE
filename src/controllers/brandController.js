@@ -1,6 +1,7 @@
 import Brand from "../models/Brand.js";
 import createError from "../utils/createError.js";
 import messages from "../constants/index.js";
+import { pickFields } from "../utils/pickFields.js";
 
 
 export const getBrand = async (req, res, next) => {
@@ -16,9 +17,7 @@ export const getBrand = async (req, res, next) => {
         // Chỉ lấy brand bị xoá mềm
         if (only_deleted === "true") {
             query.is_deleted = true;
-        }
-        // Nếu không include, mặc định là chưa xoá
-        else if (include_deleted !== "true") {
+        } else if (include_deleted !== "true") { // Nếu không include, mặc định là chưa xoá
             query.is_deleted = false;
         }
 
@@ -41,9 +40,8 @@ export const getBrand = async (req, res, next) => {
 
 export const createBrand = async (req, res, next) => {
     try {
-        const { name, origin, description } = req.body; // lấy dữ liệu 
-
-        const newBrand = new Brand({ name, origin, description }); // tạo object mới theo schema
+        const data = pickFields(req.body, ["name", "origin", "description"]);
+        const newBrand = new Brand(data); // tạo object mới theo schema
         const savedBrand = await newBrand.save(); // .save() để ghi vào mongodb
 
         // trả dữ liệu vừa tạo
@@ -59,11 +57,11 @@ export const createBrand = async (req, res, next) => {
 export const updateBrand = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { name, origin, description } = req.body;
+        const data = pickFields(req.body, ["name", "origin", "description"]);
 
         const updated = await Brand.findByIdAndUpdate(
             id,
-            { name, origin, description },
+            data, 
             { new: true } // trả về bản mới sau khi cập nhật
         );
 
@@ -87,7 +85,7 @@ export const deleteBrand = async (req, res, next) => {
         const deteled = await Brand.findByIdAndUpdate(id);
 
         if (!deteled) {
-            throw createError({ messages: messages.BRAND.NOT_FOUND});
+            throw createError({ messages: messages.BRAND.NOT_FOUND });
         }
 
         res.json({
@@ -112,9 +110,9 @@ export const softDeleteBrand = async (req, res, next) => {
             throw createError({ message: messages.BRAND.NOT_FOUND });
         }
 
-        res.json({ 
-            message: messages.BRAND.SOFT_DELETE_SUCCESS, 
-            brand 
+        res.json({
+            message: messages.BRAND.SOFT_DELETE_SUCCESS,
+            brand
         });
     } catch (err) {
         next(err);
@@ -136,9 +134,9 @@ export const restoreBrand = async (req, res, next) => {
             throw createError({ message: messages.BRAND.NOT_FOUND });
         }
 
-        res.json({ 
-            message: messages.BRAND.REGISTER_SUCCESS, 
-            brand 
+        res.json({
+            message: messages.BRAND.REGISTER_SUCCESS,
+            brand
         });
     } catch (err) {
         next(err);

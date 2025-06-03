@@ -82,6 +82,7 @@ const messages = {
     REGISTER_SUCCESS: "Khôi phục tài khoản thành công",
     DETAIL_SUCCESS: "Chi tiết tài khoản",
     NO_CHANGE_EMAIL: "Không được phép thay đổi email",
+    EMAIL_EXISTS: "Email đã tồn tại"
   },
   CART: {
     CREATE_FAILED: "Tạo giỏ hàng thất bại",

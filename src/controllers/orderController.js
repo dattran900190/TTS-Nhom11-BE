@@ -1,27 +1,27 @@
 import Order from "../models/Order.js";
 import createError from "../utils/createError.js";
 
-export const createOrder = async (req, res, next) => {
-  try {
-    const { user_id, order_date, status, shipping_address, note, total_price, discount_id } = req.body;
-    const newOrder = new Order({
-      user_id,
-      order_date,
-      status,
-      shipping_address,
-      note,
-      total_price,
-      discount_id,
-    });
-    const saved = await newOrder.save();
-    res.status(201).json({
-      message: "Tạo đơn hàng thành công",
-      order: saved,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+// export const createOrder = async (req, res, next) => {
+//   try {
+//     const { user_id, order_date, status, shipping_address, note, total_price, discount_id } = req.body;
+//     const newOrder = new Order({
+//       user_id,
+//       order_date,
+//       status,
+//       shipping_address,
+//       note,
+//       total_price,
+//       discount_id,
+//     });
+//     const saved = await newOrder.save();
+//     res.status(201).json({
+//       message: "Tạo đơn hàng thành công",
+//       order: saved,
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 export const getOrders = async (req, res, next) => {
   try {
@@ -79,15 +79,15 @@ export const updateOrder = async (req, res, next) => {
   }
 };
 
-export const deleteOrder = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const deleted = await Order.findByIdAndDelete(id);
-    if (!deleted) throw createError(404, "Không tìm thấy đơn hàng để xóa.");
-    // Optional: delete related OrderDetails
-    await OrderDetail.deleteMany({ id });
-    res.json({ message: "Xóa đơn hàng thành công" });
-  } catch (err) {
-    next(err);
-  }
-};
+// export const deleteOrder = async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const deleted = await Order.findByIdAndDelete(id);
+//     if (!deleted) throw createError(404, "Không tìm thấy đơn hàng để xóa.");
+//     // Optional: delete related OrderDetails
+//     await OrderDetail.deleteMany({ id });
+//     res.json({ message: "Xóa đơn hàng thành công" });
+//   } catch (err) {
+//     next(err);
+//   }
+// };

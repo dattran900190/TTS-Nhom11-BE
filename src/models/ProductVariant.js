@@ -18,6 +18,10 @@ const productVariantSchema = new mongoose.Schema({
   stock_quantity: {
     type: Number,
     default: 0
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
   }
 }, {
   timestamps: true

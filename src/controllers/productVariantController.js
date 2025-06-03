@@ -3,33 +3,75 @@ import createError from "../utils/createError.js";
 import Product from "../models/Product.js";
 import messages from "../constants/index.js";
 import { updateCartPricesByProductOrVariant } from './cartController.js';
+import { pickFields } from "../utils/pickFields.js";
 
 // Danh sách biến thể
 export const getVariants = async (req, res, next) => {
   try {
-    const { product_id } = req.query;
+    const { search = "", page = 1, limit = 5 } = req.query;
 
-    const query = product_id ? { product_id } : {};
+    const skip = (page - 1) * limit;
 
-    const data = await ProductVariant.find(query);
+    const pipeline = [
+      {
+        $lookup: {
+          from: "products", // tên bảng liên kết (collection tên là "products")
+          localField: "product_id", // khóa chính trong variants
+          foreignField: "_id",      // khóa liên kết trong products
+          as: "product"             // gộp thông tin product vào biến "product"
+        }
+      },
+      { $unwind: "$product" }, // vì product là mảng, cần tách thành object đơn
+    ];
+
+    // Nếu có từ khóa tìm kiếm theo tên sản phẩm
+    if (search) {
+      pipeline.push({
+        $match: {
+          "product.name": { $regex: search, $options: "i" }
+        }
+      });
+    }
+
+    pipeline.push(
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: Number(limit) }
+    );
+
+    const [data, totalCount] = await Promise.all([
+      ProductVariant.aggregate(pipeline),
+      ProductVariant.aggregate([
+        ...pipeline.slice(0, -3), // bỏ sort, skip, limit để đếm đúng
+        { $count: "count" }
+      ])
+    ]);
+
+    const total = totalCount[0]?.count || 0;
+
     res.json({
-      data
+      page: Number(page),
+      total,
+      data,
     });
+
   } catch (err) {
     next(err);
   }
 };
 
+
+
 // Thêm biến thể mới
 export const createVariant = async (req, res, next) => {
   try {
-    const { product_id, volume, price, stock_quantity } = req.body;
+    const data = pickFields(req.body, ["product_id", "volume", "price", "stock_quantity"])
 
     if (!product_id) {
-      throw createError(404, 'Không tìm thấy ID sản phẩm');
+      throw createError({ messages: messages.PRODUCT_VARIANT.NOT_FOUND_ID});
     }
 
-    const variant = new ProductVariant({ product_id, volume, price, stock_quantity });
+    const variant = new ProductVariant(data);
     const saved = await variant.save();
 
     res.status(201).json({
@@ -42,25 +84,62 @@ export const createVariant = async (req, res, next) => {
 };
 
 // Cập nhật biến thể
+// export const updateVariant = async (req, res, next) => {
+//   try {
+//     const { id } = req.params;
+//     const updateFields = req.body;
+
+//     const oldVariant = await ProductVariant.findById(id);
+//     if (!oldVariant) {
+//       throw createError({ message: messages.PRODUCT_VARIANT.NOT_FOUND });
+//     }
+
+//     const updated = await ProductVariant.findByIdAndUpdate(
+//       id,
+//       updateFields,
+//       { new: true, runValidators: true }
+//     );
+
+//     // Nếu price thay đổi, cập nhật giá trong giỏ hàng
+//     if (updateFields.price !== undefined && updateFields.price !== oldVariant.price) {
+//       await updateCartPricesByProductOrVariant({ product_id: undefined, variant_id: id, newPrice: updateFields.price });
+//     }
+
+//     res.json({
+//       message: messages.PRODUCT_VARIANT.UPDATE_SUCCESS,
+//       variant: updated
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 export const updateVariant = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const updateFields = req.body;
 
+    // Lấy dữ liệu cũ trước khi cập nhật
     const oldVariant = await ProductVariant.findById(id);
     if (!oldVariant) {
-      throw createError({ message: messages.PRODUCT_VARIANT.NOT_FOUND });
+      // throw createError({ message: messages.PRODUCT.NOT_FOUND });
+      throw createError(404, messages.PRODUCT_VARIANT.NOT_FOUND);
     }
 
-    const updated = await ProductVariant.findByIdAndUpdate(
-      id,
-      updateFields,
-      { new: true, runValidators: true }
-    );
+    const data = pickFields(req.body, ["product_id", "volume", "price", "stock_quantity"])
+    const updated = await ProductVariant.findByIdAndUpdate(id, data, {new: true,});
 
-    // Nếu price thay đổi, cập nhật giá trong giỏ hàng
-    if (updateFields.price !== undefined && updateFields.price !== oldVariant.price) {
-      await updateCartPricesByProductOrVariant({ product_id: undefined, variant_id: id, newPrice: updateFields.price });
+    if (!updated) {
+      // throw createError({ message: messages.PRODUCT.NOT_FOUND  });
+      throw createError(404, messages.PRODUCT_VARIANT.NOT_FOUND);
+    }
+
+    // Nếu giá price thay đổi, cập nhật giá trong giỏ hàng
+    if (data.price !== undefined && data.price !== oldVariant.price) {
+      await updateCartPricesByProductOrVariant({
+        product_id: undefined,
+        variant_id: id,
+        newPrice: data.price,
+      });
     }
 
     res.json({
@@ -105,25 +184,73 @@ export const getVariantsByProduct = async (req, res, next) => {
 
 
 // POST /products/:id/add-variant
-// export const addVariantToProduct = async (req, res, next) => {
-//   try {
-//     const { id } = req.params;
-//     const { volume, price, stock_quantity } = req.body;
+export const addVariantToProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { volume, price, stock_quantity } = req.body;
 
-//     const product = await Product.findById(id);
-//     if (!product) {
-//       throw createError({ message: messages.PRODUCT_VARIANT.NOT_FOUND });
-//     }
+    const product = await Product.findById(id);
+    if (!product) {
+      throw createError({ message: messages.PRODUCT_VARIANT.NOT_FOUND });
+    }
 
-//     product.variants.push({ volume, price, stock_quantity });
-//     await product.save();
+    const variants = await ProductVariant.find({ product_id: id });
+    const variant = new ProductVariant({
+      product_id: id,
+      volume,
+      price,
+      stock_quantity
+    });
 
-//     res.json({
-//       message: messages.PRODUCT_VARIANT.CREATE_SUCCESS,
-//       product,
-//     });
+    await variant.save();
 
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+    res.json({
+      message: messages.PRODUCT_VARIANT.CREATE_SUCCESS,
+      product,
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export const softDeleteVariant = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const updated = await ProductVariant.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Không tìm thấy biến thể." });
+    }
+
+    res.json({ message: "Đã xóa mềm biến thể.", data: updated });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const restoreVariant = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const restored = await ProductVariant.findByIdAndUpdate(
+      id,
+      { isDeleted: false },
+      { new: true }
+    );
+
+    if (!restored) {
+      return res.status(404).json({ message: "Không tìm thấy biến thể." });
+    }
+
+    res.json({ message: "Khôi phục biến thể thành công.", data: restored });
+  } catch (err) {
+    next(err);
+  }
+};

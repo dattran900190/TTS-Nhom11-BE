@@ -20,46 +20,11 @@ import {
 
 const router = Router();
 
-router.get("/brands", validateGetBrand, validateRequest, getBrand);
-router.post(
-  "/brands/create",
-  authenticateToken,
-  authorizeRoles("admin", "superadmin"),
-  validateCreateBrand,
-  validateRequest,
-  createBrand
-);
-router.put(
-  "/brands/edit/:id",
-  authenticateToken,
-  authorizeRoles("admin", "superadmin"),
-  validateUpdateBrand,
-  validateRequest,
-  updateBrand
-);
-router.delete(
-  "/brands/delete/:id",
-  authenticateToken,
-  authorizeRoles("admin", "superadmin"),
-  validateDeleteBrand,
-  validateRequest,
-  deleteBrand
-);
-router.delete(
-  "/brands/soft-delete/:id",
-  authenticateToken,
-  authorizeRoles("admin", "superadmin"),
-  validatesoftDeleteBrand,
-  validateRequest,
-  softDeleteBrand
-);
-router.patch(
-  "/brands/restore/:id",
-  authenticateToken,
-  authorizeRoles("admin", "superadmin"),
-  validateRestoreBrand,
-  validateRequest,
-  restoreBrand
-);
+router.get("/", validateGetBrand, validateRequest, getBrand);
+router.post( "/create", authenticateToken, authorizeRoles("admin", "superadmin"), validateCreateBrand, validateRequest, createBrand );
+router.put( "/edit/:id", authenticateToken, authorizeRoles("admin", "superadmin"), validateUpdateBrand, validateRequest, updateBrand );
+router.delete( "/delete/:id", authenticateToken, authorizeRoles("admin", "superadmin"), validateDeleteBrand, validateRequest, deleteBrand );
+router.delete( "/soft-delete/:id", authenticateToken, authorizeRoles("admin", "superadmin"), validatesoftDeleteBrand, validateRequest, softDeleteBrand );
+router.patch( "/restore/:id", authenticateToken, authorizeRoles("admin", "superadmin"), validateRestoreBrand, validateRequest, restoreBrand );
 
 export default router;

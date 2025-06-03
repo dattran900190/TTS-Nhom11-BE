@@ -13,9 +13,9 @@ export const validateCreateUser = [
     .isString().withMessage("Số điện thoại phải là chuỗi."),
   body("address")
     .notEmpty().withMessage("Địa chỉ là bắt buộc."),
-  body("role_id")
-    .notEmpty().withMessage("Vai trò là bắt buộc.")
-    .isMongoId().withMessage("ID vai trò không hợp lệ."),
+  // body("role_id")
+  //   .notEmpty().withMessage("Vai trò là bắt buộc.")
+  //   .isMongoId().withMessage("ID vai trò không hợp lệ."),
 ];
 
 export const validateUpdateUser = [
@@ -24,7 +24,7 @@ export const validateUpdateUser = [
   body("password").optional().isLength({ min: 6 }).withMessage("Mật khẩu phải có ít nhất 6 ký tự."),
   body("phone").optional().isString().withMessage("Số điện thoại phải là chuỗi."),
   body("address").optional(),
-  body("role_id").optional().isMongoId().withMessage("ID vai trò không hợp lệ."),
+  // body("role_id").optional().isMongoId().withMessage("ID vai trò không hợp lệ."),
   body("email").not().exists().withMessage("Không được phép cập nhật email.")
 ];
 
