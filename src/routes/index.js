@@ -8,6 +8,9 @@ import productRoutes from "./productRoutes.js";
 import userRoutes from "./userRoutes.js";
 import variantRoutes from "./variantRoutes.js";
 import cartRoutes from "./cartRoutes.js";
+import orderStatusHistoryRoutes from "./orderStatusHistory.js";
+import paymentRoutes from "./paymentRoutes.js";
+import discountRoutes from "./discountRoutes.js";
 const routes = Router();
 
 routes.use("/auth", authRoutes);
@@ -19,4 +22,7 @@ routes.use("/products", productRoutes);
 routes.use("/users", userRoutes);
 routes.use("/variants", variantRoutes);
 routes.use("/cart", cartRoutes);
+routes.use("/order-status-histories", orderStatusHistoryRoutes);
+routes.use("/payments", paymentRoutes);
+routes.use("/discounts", discountRoutes);
 export default routes;

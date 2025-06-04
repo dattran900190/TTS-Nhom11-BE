@@ -24,6 +24,9 @@ export const getProducts = async (req, res, next) => {
 
     const skip = (page - 1) * limit;
 
+    // Tính tổng số bản ghi phù hợp
+    const total = await Product.countDocuments(query);
+
     const products = await Product.aggregate([
       { $match: query },
       { $sort: { createdAt: -1 } },
@@ -41,7 +44,7 @@ export const getProducts = async (req, res, next) => {
 
     res.json({
       page: Number(page),
-      // total,
+      total,
       data: products,
     });
   } catch (err) {

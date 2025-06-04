@@ -70,6 +70,12 @@ const messages = {
     REGISTER_SUCCESS: "Khôi phục thương hiệu thành công",
     DETAIL_SUCCESS: "Chi tiết thương hiệu",
   },
+  ORDER: {
+    NOT_FOUND: "Không tìm thấy đơn hàng",
+    UPDATE_SUCCESS: "Cập nhật đơn hàng thành công",
+    UPDATE_FAILED: "Cập nhật đơn hàng thất bại",
+    DETAIL_SUCCESS: "Chi tiết đơn hàng",
+  },
   USER: {
     CREATE_SUCCESS: "Thêm tài khoản thành công",
     CREATE_FAILED: "Tạo tài khoản thất bại",
@@ -83,6 +89,27 @@ const messages = {
     DETAIL_SUCCESS: "Chi tiết tài khoản",
     NO_CHANGE_EMAIL: "Không được phép thay đổi email",
     EMAIL_EXISTS: "Email đã tồn tại"
+  },
+  PAYMENT: {
+    NOT_FOUND: "Không tìm thấy thanh toán",
+    UPDATE_SUCCESS: "Cập nhật thanh toán thành công",
+    UPDATE_FAILED: "Cập nhật thanh toán thất bại",
+    DETAIL_SUCCESS: "Chi tiết thanh toán",
+    ORDER_ID_INVALID: "order id không hợp lệ",
+    ID_INVALID: "id không hợp lệ",
+    PAYMETN_STATUS_INVALID: "Trạng thái thanh toán không hợp lệ"
+  },
+  DISCOUNT: {
+    CREATE_SUCCESS: "Thêm mã giảm giá thành công",
+    CREATE_FAILED: "Tạo mã giảm giá thất bại",
+    NOT_FOUND: "Không tìm thấy mã giảm giá",
+    UPDATE_SUCCESS: "Cập nhật mã giảm giá thành công",
+    UPDATE_FAILED: "Cập nhật mã giảm giá thất bại",
+    HARD_DELETE_SUCCESS: "Xoá mã giảm giá thành công",
+    DELETE_FAILED: "Xoá mã giảm giá thất bại",
+    SOFT_DELETE_SUCCESS: "Đã xoá mềm mã giảm giá",
+    REGISTER_SUCCESS: "Khôi phục mã giảm giá thành công",
+    DETAIL_SUCCESS: "Chi tiết mã giảm giá",
   },
   CART: {
     CREATE_FAILED: "Tạo giỏ hàng thất bại",
