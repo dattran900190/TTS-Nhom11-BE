@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 
 const historySchema = new mongoose.Schema({
-  history_id: { type: String, required: true, unique: true },
-  order_id: { type: String, ref: "Order" },
+  order_id: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
   old_status: String,
   new_status: String,
   changed_by: String,

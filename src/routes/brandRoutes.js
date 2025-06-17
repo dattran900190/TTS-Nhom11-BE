@@ -1,22 +1,8 @@
 import { Router } from "express";
 import validateRequest from "../middlewares/validateRequest.js";
 import { authenticateToken, authorizeRoles } from "../middlewares/authMiddleware.js";
-import {
-  validateGetBrand,
-  validateCreateBrand,
-  validateUpdateBrand,
-  validateDeleteBrand,
-  validateRestoreBrand,
-  validatesoftDeleteBrand,
-} from "../validations/BrandValidate.js";
-import {
-  getBrand,
-  createBrand,
-  updateBrand,
-  deleteBrand,
-  softDeleteBrand,
-  restoreBrand,
-} from "../controllers/brandController.js";
+import { validateGetBrand, validateCreateBrand, validateUpdateBrand, validateDeleteBrand, validateRestoreBrand, validatesoftDeleteBrand,} from "../validations/BrandValidate.js";
+import { getBrand, createBrand, updateBrand, deleteBrand, softDeleteBrand, restoreBrand, } from "../controllers/brandController.js";
 
 const router = Router();
 const adminAuth = [authenticateToken, authorizeRoles("admin", "superadmin")];
