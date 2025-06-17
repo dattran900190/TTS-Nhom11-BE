@@ -1,31 +1,26 @@
 import { Router } from "express";
 import validateRequest from "../middlewares/validateRequest.js";
-import { authenticateToken, authorizeRoles } from "../middlewares/authMiddleware.js";
 import {
-  // validateCreateOrder,
+  authenticateToken,
+  authorizeRoles,
+} from "../middlewares/authMiddleware.js";
+import {
   validateUpdateOrder,
-  // validateDeleteOrder,
   validateGetOrders,
 } from "../validations/OrderValidate.js";
+
 import { getOrders, updateOrder } from "../controllers/orderController.js";
 
 const router = Router();
+const adminAuth = [authenticateToken, authorizeRoles("admin", "superadmin")];
 
-router.get("/",authenticateToken,authorizeRoles("admin", "superadmin"),validateGetOrders,validateRequest, getOrders);
-// router.post(
-//   "/orders/create",
-//   authenticateToken,
-//   authorizeRoles("admin", "superadmin"),
-//   validateCreateOrder,
-//   validateRequest,
-//   createOrder );
-router.put("/edit/:id",authenticateToken,authorizeRoles("admin", "superadmin"),validateUpdateOrder,validateRequest, updateOrder);
-// router.delete(
-//   "/orders/delete/:id",
-//   authenticateToken,
-//   authorizeRoles("admin", "superadmin"),
-//   validateDeleteOrder,
-//   validateRequest,
-//   deleteOrder );
+router.get("/", adminAuth, validateGetOrders, validateRequest, getOrders);
+router.put(
+  "/:id",
+  adminAuth,
+  validateUpdateOrder,
+  validateRequest,
+  updateOrder
+);
 
 export default router;

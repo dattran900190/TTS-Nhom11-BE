@@ -7,13 +7,19 @@ import {
   validateDeleteUser,
   validateGetUser,
 } from "../validations/UserValidate.js";
-import { getUsers, createUser, updateUser, deleteUser } from "../controllers/userController.js";
+import {
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "../controllers/userController.js";
 
 const router = Router();
+const adminAuth = [authenticateToken, authorizeRoles("admin", "superadmin")];
 
-router.get( "/", authenticateToken, authorizeRoles("admin", "superadmin"), validateGetUser, validateRequest, getUsers );
-router.post( "/create", authenticateToken, authorizeRoles("admin", "superadmin"), validateCreateUser, validateRequest, createUser );
-router.put( "/edit/:id", authenticateToken, authorizeRoles("admin", "superadmin"), validateUpdateUser, validateRequest, updateUser );
-router.delete( "/delete/:id", authenticateToken, authorizeRoles("admin", "superadmin"), validateDeleteUser, validateRequest, deleteUser );
+router.get("/", adminAuth, validateGetUser, validateRequest, getUsers);
+router.post("/", adminAuth, validateCreateUser, validateRequest, createUser);
+router.put("/:id", adminAuth, validateUpdateUser, validateRequest, updateUser);
+router.delete("/:id", adminAuth, validateDeleteUser, validateRequest, deleteUser);
 
 export default router;

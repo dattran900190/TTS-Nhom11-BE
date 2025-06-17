@@ -1,24 +1,27 @@
 import { Router } from "express";
 import validateRequest from "../middlewares/validateRequest.js";
 import { authenticateToken, authorizeRoles } from "../middlewares/authMiddleware.js";
+
 import {
-  // validateCreateOrderDetail,
   validateUpdateOrderDetail,
-  // validateDeleteOrderDetail,
   validateGetOrderDetails,
+  // validateCreateOrderDetail,
+  // validateDeleteOrderDetail,
 } from "../validations/OrderDetailValidate.js";
+
 import {
   getOrderDetails,
-  // createOrderDetail,
   updateOrderDetail,
+  // createOrderDetail,
   // deleteOrderDetail,
 } from "../controllers/orderDetailController.js";
 
 const router = Router();
+const adminAuth = [authenticateToken, authorizeRoles("admin", "superadmin")];
 
-router.get( "/", authenticateToken, authorizeRoles("admin", "superadmin"), validateGetOrderDetails, validateRequest, getOrderDetails );
-// router.post( "/orders/:id/details", authenticateToken, authorizeRoles("admin", "superadmin"), validateCreateOrderDetail, validateRequest, createOrderDetail );
-router.put( "/:order_detail_id", authenticateToken, authorizeRoles("admin", "superadmin"), validateUpdateOrderDetail, validateRequest, updateOrderDetail );
-// router.delete( "/order-details/:order_detail_id", authenticateToken, authorizeRoles("admin", "superadmin"), validateDeleteOrderDetail, validateRequest, deleteOrderDetail );
+router.get("/", adminAuth, validateGetOrderDetails, validateRequest, getOrderDetails);
+router.put("/:order_detail_id", adminAuth, validateUpdateOrderDetail, validateRequest, updateOrderDetail);
+// router.post("/", adminAuth, validateCreateOrderDetail, validateRequest, createOrderDetail);
+// router.delete("/:order_detail_id", adminAuth, validateDeleteOrderDetail, validateRequest, deleteOrderDetail);
 
 export default router;
