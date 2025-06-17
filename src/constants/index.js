@@ -22,6 +22,7 @@ const messages = {
     INVALID_REFRESH_TOKEN: "Refresh token không hợp lệ hoặc đã bị thu hồi",
     MISSING_INFORMATION: "Vui lòng nhập đầy đủ thông tin",
     MISSING_REFRESH_TOKEN: "Thiếu refresh token",
+    LOGOUT_SUCCESS: "Đăng xuất thành công.",
   },
   CATEGORY: {
     CREATE_FAILED: "Tạo danh mục thất bại",
