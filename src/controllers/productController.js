@@ -108,7 +108,7 @@ export const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const data = pickFields(req.body, [ "name", "description", "price", "category_id", "brand_id", "image", "is_deleted" ]);
+    const data = pickFields(req.body, [ "name", "description", "price", "category_id", "brand_id", "image_url", "is_deleted" ]);
 
     const updated = await Product.findByIdAndUpdate(id, data, {new: true,});
 

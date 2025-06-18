@@ -3,9 +3,9 @@ import { body, param, query } from "express-validator";
 
 // Validate tạo mới biến thể sản phẩm
 export const validateCreateVariant = [
-  body("id")
-    .notEmpty().withMessage("ID sản phẩm là bắt buộc.")
-    .isMongoId().withMessage("ID sản phẩm không hợp lệ."),
+  // body("product_id")
+  //   .notEmpty().withMessage("ID sản phẩm là bắt buộc.")
+  //   .isMongoId().withMessage("ID sản phẩm không hợp lệ."),
   body("volume")
     .notEmpty().withMessage("Dung tích là bắt buộc.")
     .isNumeric().withMessage("Dung tích phải là số."),
@@ -19,7 +19,7 @@ export const validateCreateVariant = [
 
 // Validate cập nhật biến thể sản phẩm
 export const validateUpdateVariant = [
-  param("id").isMongoId().withMessage("ID không hợp lệ."),
+  // param("product_id").isMongoId().withMessage("ID không hợp lệ."),
   body("volume")
     .optional()
     .isNumeric().withMessage("Dung tích phải là số."),

@@ -67,7 +67,7 @@ export const createVariant = async (req, res, next) => {
   try {
     const data = pickFields(req.body, ["product_id", "volume", "price", "stock_quantity"])
 
-    if (!product_id) {
+    if (!data.product_id) {
       throw createError({ messages: messages.PRODUCT_VARIANT.NOT_FOUND_ID});
     }
 
