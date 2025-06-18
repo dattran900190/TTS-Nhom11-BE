@@ -10,16 +10,25 @@ import {
   validatesoftDeleteVariant,
   validateRestoreVariant
 } from "../validations/VariantValidate.js";
-import { getVariants, createVariant, updateVariant, deleteVariant, addVariantToProduct, softDeleteVariant, restoreVariant } from "../controllers/productVariantController.js";
+import {
+  getVariants,
+  createVariant,
+  updateVariant,
+  deleteVariant,
+  addVariantToProduct,
+  softDeleteVariant,
+  restoreVariant
+} from "../controllers/productVariantController.js";
 
 const router = Router();
+const adminAuth = [authenticateToken, authorizeRoles("admin", "superadmin")];
 
 router.get("/", validateGetVariants, validateRequest, getVariants);
-router.post("/create",authenticateToken,authorizeRoles("admin", "superadmin"),validateCreateVariant,validateRequest,createVariant);
-router.put("/edit/:id",authenticateToken,authorizeRoles("admin", "superadmin"),validateUpdateVariant,validateRequest,updateVariant);
-router.delete("/delete/:id",authenticateToken,authorizeRoles("admin", "superadmin"),validateDeleteVariant,validateRequest,deleteVariant);
-router.post("/addVariant/:id",authenticateToken,authorizeRoles("admin", "superadmin"),validateAddVariantVariant,validateRequest,addVariantToProduct);
-router.delete("/soft-delete/:id", authenticateToken,authorizeRoles("admin", "superadmin"),validatesoftDeleteVariant,validateRequest, softDeleteVariant);
-router.patch("/restore/:id", authenticateToken,authorizeRoles("admin", "superadmin"),validateRestoreVariant,validateRequest, restoreVariant);
+router.post("/", adminAuth, validateCreateVariant, validateRequest, createVariant);
+router.put("/:id", adminAuth, validateUpdateVariant, validateRequest, updateVariant);
+router.delete("/:id", adminAuth, validateDeleteVariant, validateRequest, deleteVariant);
+router.post("/add-to-product/:id", adminAuth, validateAddVariantVariant, validateRequest, addVariantToProduct);
+router.delete("/soft-delete/:id", adminAuth, validatesoftDeleteVariant, validateRequest, softDeleteVariant);
+router.patch("/restore/:id", adminAuth, validateRestoreVariant, validateRequest, restoreVariant);
 
 export default router;

@@ -7,8 +7,12 @@ import { sendOtpEmail } from "../utils/sendMail.js";
 import { sendConfirmEmail } from "../utils/sendConfirmEmail.js";
 import messages from "../constants/index.js";
 import { generateTokens, generateConfirmEmailToken } from "../utils/jwt.js";
-import { generateOtp } from '../middlewares/optMiddleware.js';
-import {JWT_SECRET,JWT_REFRESH_SECRET,JWT_CONFIRM_EMAIL_SECRET} from "../configs/enviroments.js";
+import { generateOtp } from "../middlewares/optMiddleware.js";
+import {
+  JWT_SECRET,
+  JWT_REFRESH_SECRET,
+  JWT_CONFIRM_EMAIL_SECRET,
+} from "../configs/enviroments.js";
 import Cart from "../models/Cart.js";
 
 export const register = async (req, res, next) => {
@@ -48,7 +52,6 @@ export const register = async (req, res, next) => {
     next(error);
   }
 };
-
 
 export const confirmEmail = async (req, res, next) => {
   try {
@@ -122,7 +125,7 @@ export const sendOtp = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (!user)
       return res.status(404).json({ message: messages.AUTH.USER_NOT_FOUND });
-    const otp = generateOtp(6); 
+    const otp = generateOtp(6);
     const expiresAt = new Date(Date.now() + 3 * 60 * 1000); // 3 phút
 
     await PasswordReset.findOneAndUpdate(
@@ -138,7 +141,6 @@ export const sendOtp = async (req, res, next) => {
     next(error);
   }
 };
-
 
 export const resetPassword = async (req, res, next) => {
   try {
@@ -214,5 +216,31 @@ export const refreshToken = async (req, res, next) => {
     res.json({ success: true, ...tokens });
   } catch {
     res.status(403).json({ message: messages.AUTH.INVALID_REFRESH_TOKEN });
+  }
+};
+
+export const logout = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken)
+      return res
+        .status(400)
+        .json({ message: messages.AUTH.MISSING_REFRESH_TOKEN });
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+    const user = await User.findById(decoded._id);
+    if (!user)
+      return res.status(404).json({ message: messages.AUTH.USER_NOT_FOUND });
+    const tokenIndex = user.refreshTokens.findIndex(
+      (rt) => rt.token === refreshToken
+    );
+    if (tokenIndex === -1)
+      return res
+        .status(403)
+        .json({ message: messages.AUTH.INVALID_REFRESH_TOKEN });
+    user.refreshTokens.splice(tokenIndex, 1);
+    await user.save();
+    res.json({ success: true, message: messages.AUTH.LOGOUT_SUCCESS });
+  } catch (error) {
+    res.status(400).json({ message: messages.AUTH.INVALID_REFRESH_TOKEN });
   }
 };
