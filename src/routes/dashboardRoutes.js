@@ -6,7 +6,7 @@ import {
   validateTopProducts,
   validateOrdersByCategory,
   validateDashboardSummary
-} from "../validations/VariantValidate.js";
+} from "../validations/DashboardValidate.js";
 
 import {
   getDashboardSummary,
@@ -19,10 +19,10 @@ import {
 const router = express.Router();
 const adminAuth = [authenticateToken, authorizeRoles("admin", "superadmin")];
 
-router.get("/summary", adminAuth, validateDashboardSummary, getDashboardSummary);
-router.get("/monthly-revenue", adminAuth, validateMonthlyRevenue, getMonthlyRevenue);
-router.get("/top-products", adminAuth, validateTopProducts, getTopProducts);
-router.get("/order-by-category", adminAuth, validateOrdersByCategory, getOrdersByCategory);
+router.get("/summary", adminAuth, validateDashboardSummary, validateRequest, getDashboardSummary);
+router.get("/monthly-revenue", adminAuth, validateMonthlyRevenue, validateRequest, getMonthlyRevenue);
+router.get("/top-products", adminAuth, validateTopProducts, validateRequest, getTopProducts);
+router.get("/order-by-category", adminAuth, validateOrdersByCategory, validateRequest, getOrdersByCategory);
 router.get("/user-count", adminAuth,  getUserCount);
 
 export default router;

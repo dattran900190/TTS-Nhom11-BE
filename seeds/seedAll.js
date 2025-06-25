@@ -21,13 +21,13 @@ async function seedData() {
     console.log("✅ Đã kết nối MongoDB");
 
     // // XÓA DỮ LIỆU CŨ
-    // await Product.deleteMany({});
-    // await Discount.deleteMany({});
-    // await Order.deleteMany({});
-    // await OrderDetail.deleteMany({});
-    // await OrderStatusHistory.deleteMany({});
+    await Product.deleteMany({});
+    await Discount.deleteMany({});
+    await Order.deleteMany({});
+    await OrderDetail.deleteMany({});
+    await OrderStatusHistory.deleteMany({});
     // await User.deleteMany({}); // nếu có User
-    // console.log("🗑️ Đã xóa dữ liệu cũ");
+    console.log("🗑️ Đã xóa dữ liệu cũ");
 
     // 1. Fake User
     const users = [];

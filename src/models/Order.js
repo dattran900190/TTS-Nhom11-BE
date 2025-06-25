@@ -11,18 +11,7 @@ const orderSchema = new mongoose.Schema({
   discount_id: { type: String, ref: "Discount" }
 }, { timestamps: true });
 
-// Middleware: lưu trạng thái cũ trước khi cập nhật
-// orderSchema.pre('findOneAndUpdate', async function (next) {
-//   try {
-//     const docToUpdate = await this.model.findOne(this.getQuery()).lean();
-//     this._oldStatus = docToUpdate?.status;
-//     next();
-//   } catch (err) {
-//     console.error("Lỗi pre hook:", err);
-//     next(err);
-//   }
-// });
-// PRE: Ghi lại status cũ và changed_by
+
 orderSchema.pre('findOneAndUpdate', async function (next) {
   const doc = await this.model.findOne(this.getQuery()).lean();
   this._oldStatus = doc?.status;
@@ -89,3 +78,17 @@ export default Order;
   //   console.error("Lỗi ghi lịch sử trạng thái:", err);
   //   next(err);
   // }
+
+
+  // Middleware: lưu trạng thái cũ trước khi cập nhật
+// orderSchema.pre('findOneAndUpdate', async function (next) {
+//   try {
+//     const docToUpdate = await this.model.findOne(this.getQuery()).lean();
+//     this._oldStatus = docToUpdate?.status;
+//     next();
+//   } catch (err) {
+//     console.error("Lỗi pre hook:", err);
+//     next(err);
+//   }
+// });
+// PRE: Ghi lại status cũ và changed_by
