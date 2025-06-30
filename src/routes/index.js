@@ -13,6 +13,7 @@ import orderStatusHistoryRoutes from "./orderStatusHistory.js";
 import paymentRoutes from "./paymentRoutes.js";
 import discountRoutes from "./discountRoutes.js";
 import dashboardRoutes from "./dashboardRoutes.js"
+import wishlistRoutes from "./wishlistRoutes.js";
 const routes = Router();
 
 routes.use("/auth", authRoutes);
@@ -29,4 +30,5 @@ routes.use("/order-status-histories", orderStatusHistoryRoutes);
 routes.use("/payments", paymentRoutes);
 routes.use("/discounts", discountRoutes);
 routes.use("/dashboard", dashboardRoutes);
+routes.use("/wishlist", wishlistRoutes);
 export default routes;
