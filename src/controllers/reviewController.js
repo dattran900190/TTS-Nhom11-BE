@@ -1,6 +1,6 @@
 import ProductReview from "../models/ProductReview.js";
 
-// Lấy toàn bộ review (kể cả ẩn) — dùng cho 
+// Lấy toàn bộ review (kể cả ẩn) — dùng cho
 export const GetAllReviews = async (req, res) => {
   try {
     const reviews = await ProductReview.find()
@@ -39,8 +39,34 @@ export const ToggleReviewVisibility = async (req, res) => {
 
     res.json({
       message: `Review is now ${review.is_visible ? "visible" : "hidden"}`,
-      is_visible: review.is_visible
+      is_visible: review.is_visible,
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const AddUserReview = async (req, res) => {
+  const { product_id, rating, comment } = req.body;
+  const user_id = req.user._id; 
+
+  try {
+    const existing = await ProductReview.findOne({ user_id, product_id });
+    if (existing) {
+      return res
+        .status(400)
+        .json({ message: "Bạn đã đánh giá sản phẩm này rồi" });
+    }
+    const newReview = new ProductReview({
+      user_id,
+      product_id,
+      rating,
+      comment,
+      is_visible: true, 
+    });
+
+    await newReview.save();
+    res.status(201).json({ message: "Đánh giá thành công", review: newReview });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
