@@ -2,27 +2,27 @@ import Order from "../models/Order.js";
 import createError from "../utils/createError.js";
 import messages from "../constants/index.js";
 
-// export const createOrder = async (req, res, next) => {
-//   try {
-//     const { user_id, order_date, status, shipping_address, note, total_price, discount_id } = req.body;
-//     const newOrder = new Order({
-//       user_id,
-//       order_date,
-//       status,
-//       shipping_address,
-//       note,
-//       total_price,
-//       discount_id,
-//     });
-//     const saved = await newOrder.save();
-//     res.status(201).json({
-//       message: "Tạo đơn hàng thành công",
-//       order: saved,
-//     });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+export const createOrder = async (req, res, next) => {
+  try {
+    const { user_id, order_date, status, shipping_address, note, total_price, discount_id } = req.body;
+    const newOrder = new Order({
+      user_id,
+      order_date,
+      status,
+      shipping_address,
+      note,
+      total_price,
+      discount_id,
+    });
+    const saved = await newOrder.save();
+    res.status(201).json({
+      message: messages.ORDER.CREATE_SUCCESS,
+      order: saved,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const getOrders = async (req, res, next) => {
   try {

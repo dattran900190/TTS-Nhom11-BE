@@ -73,6 +73,7 @@ const messages = {
   },
   ORDER: {
     NOT_FOUND: "Không tìm thấy đơn hàng",
+    CREATE_SUCCESS: "Thêm đơn hàng thành công",
     UPDATE_SUCCESS: "Cập nhật đơn hàng thành công",
     UPDATE_FAILED: "Cập nhật đơn hàng thất bại",
     DETAIL_SUCCESS: "Chi tiết đơn hàng",
