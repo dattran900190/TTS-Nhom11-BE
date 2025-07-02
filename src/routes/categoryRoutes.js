@@ -27,6 +27,7 @@ const adminAuth = [authenticateToken, authorizeRoles("admin", "superadmin")];
 
 router.get("/", getCategories);
 router.get("/:id", adminAuth, validateGetCategoryById, validateRequest, getCategoryById);
+router.get("/client/:id", validateGetCategoryById, validateRequest, getCategoryById);
 router.post("/", adminAuth, validateCreateCategory, validateRequest, createCategory);
 router.put("/:id", adminAuth, validateUpdateCategory, validateRequest, updateCategory);
 router.delete("/:id", adminAuth, validateDeleteCategory, validateRequest, softDeleteCategory);

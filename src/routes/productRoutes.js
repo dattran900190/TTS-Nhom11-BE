@@ -33,4 +33,6 @@ router.delete("/:id", adminAuth, validateDeleteProduct, validateRequest, deleteP
 router.delete("/soft/:id", adminAuth, validatesoftDeleteProduct, validateRequest, softDeleteProduct);
 router.patch("/restore/:id", adminAuth, validateRestoreProduct, validateRequest, restoreProduct);
 
+router.get("/client/:id", validateDetailProduct, validateRequest, getProductDetail); 
+
 export default router;
